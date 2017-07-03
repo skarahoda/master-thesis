@@ -1,0 +1,173 @@
+\documentclass[12pt]{article}
+
+\usepackage{subfigure}
+\usepackage{pstricks}
+\usepackage{pst-node}
+\usepackage{graphicx}
+\usepackage{authoraftertitle}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algorithm2e}
+\usepackage{xspace,epsfig,url}
+\usepackage{pst-plot,pstricks-add}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{remark}[theorem]{Remark}
+
+\newenvironment{remark}
+{% This is the begin code
+\stepcounter{theorem}\vspace*{0.3cm}\noindent{\bf Remark} \arabic{theorem}.
+}
+{% This is the end code
+}
+
+
+%\newtheorem{cor}[thm]{Corollary}
+
+\linespread{1.5}
+
+\setlength{\leftmargin}{3.5cm}
+
+\setlength{\topmargin}{2cm}
+
+\setlength{\rightmargin}{2cm}
+
+\newcommand{\ics}[2]{\langle #1, #2 \rangle}
+%\newcommand{\ics}[2]{\frac{#1}{#2}}
+
+\title{Algorithmic Optimization and Parallelization of Eppstein's Synchronizing Heuristic}
+
+\author{Serta\c{c} Karahoda}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\vspace{1cm}
+
+\begin{center}
+Submitted to the Graduate School of Sabanc{\i} University \\
+in partial fulfillment of the requirements for the degree of \\
+Master of Science
+\end{center}
+
+\vspace{2cm}
+
+\begin{center}
+Sabanci University
+\end{center}
+
+\begin{center}
+Augustus, 2017
+\end{center}
+
+
+\newpage
+$ $
+\thispagestyle{empty}
+\newpage
+$ $
+\vspace{5cm}
+\begin{center}
+\copyright \hspace{0.1cm} \MyAuthor\space 2015
+
+All Rights Reserved
+\thispagestyle{empty}
+\end{center}
+\newpage
+
+\begin{center}
+\large
+\MyTitle
+\end{center}
+
+\begin{center}
+\MyAuthor
+
+CS, Master's Thesis, 2017
+
+Thesis Supervisor: H\"{u}sn\"{u} Yenig\"{u}n\\
+Thesis Co--Supervisor: Kamer Kaya
+\end{center}
+
+\begin{center}
+Keywords: ...
+\end{center}
+
+\begin{abstract}
+...
+\end{abstract}
+\newpage
+
+\begin{center}
+\large
+TITLE
+\end{center}
+
+\begin{center}
+\MyAuthor
+
+CS, Y\"{u}ksek Lisans Tezi, 2017
+
+Tez Dan{\i}\c{s}man{\i}: H\"{u}sn\"{u} Yenig\"{u}n\\
+Tez E\c{s}dan{\i}\c{s}man{\i}: Kamer Kaya
+\end{center}
+
+\begin{center}
+Anahtar Kelimeler: ...
+\end{center}
+
+\begin{quote}
+\begin{center}
+{\bf \"{O}zet}
+\end{center}
+
+...
+
+\end{quote}
+\newpage
+$ $
+\vspace{2cm}
+\begin{center}
+\textbf{Acknowledgements}
+\end{center}
+
+%I would like to state my gratitude to my supervisor, H\"{u}sn\"{u} Yenig\"{u}n for everything he has done for me, especially for his invaluable guidance, limitless support and understanding. \\
+%I would like to thank Hasan Ural and Guy-Vincent Jourdan for supporting this work with precious ideas and comments. \\
+%I would like to thank my family for never leaving me alone. \\
+%The financial support of Sabanci University is gratefully acknowledged. \\
+%I would like to thank TUBITAK for the financial support provided.
+
+
+\newpage
+\tableofcontents
+
+\newpage 
+\listoffigures
+
+\newpage
+\listoftables
+
+
+
+\newpage
+\section{Introduction}
+\label{sec:Intro}
+
+
+\newpage
+\section{Preliminaries}
+\label{sec:Preliminaries}
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{thesis}
+
+\end{document}
+
+
