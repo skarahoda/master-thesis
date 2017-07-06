@@ -5,7 +5,7 @@
 \usepackage{pst-node}
 \usepackage{graphicx}
 \usepackage{authoraftertitle}
-
+\usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -24,8 +24,12 @@
 {% This is the end code
 }
 
-
+\newtheorem{proposition}{Proposition}[section]
 %\newtheorem{cor}[thm]{Corollary}
+
+\newcommand{\comment}[2]{{\color{red}{\bf (#1: #2)}}}
+\newcommand{\greedyAlgo}{\textsc{Greedy}}
+
 
 \linespread{1.5}
 
@@ -106,7 +110,7 @@ Keywords: ...
 
 \begin{center}
 \large
-TITLE
+Eppstein'\i{}n S\i{}f\i{}rlama Sezgiselinin Algoritmik Eniyilemesi ve Paralelle\c{s}tirilmesi
 \end{center}
 
 \begin{center}
@@ -159,10 +163,36 @@ $ $
 \section{Introduction}
 \label{sec:Intro}
 
+\comment{Sertac}{Reset word'den bahsedecegim.}
+
+\comment{Sertac}{Intro'da FSM'den bahsedecegim.}
 
 \newpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
+FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transaction function without an output.
+
+When an {\em automaton} is complete and deterministic, it is defined by a triple $A=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton $A$ is at a state $s$ and if an input $x$ is applied, then $A$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton $A$ with 4 states and 2 inputs using graphical notation.\looseness=-1
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figs/inverse.pdf}
+\caption{A synchronizable automaton $A$~(left), and the data structures we used to store and process
+the transition function $\delta^{-1}$  in memory (see Section~\ref{subsec:imp} for the details). A synchronizing sequence for $A$ is $abbbabbba$. \comment{sertac}{caption cok uzun belki iki figure olarak ayri ayri anlatabiliriz}}
+\label{fig:inv}
+\vspace*{-3ex}
+\end{figure}
+
+An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. Transition function $\delta$ can be extended to a set of states and to a word in the usual way. With fact $\delta(s,\varepsilon)=s$, let a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, then $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, transaction function is $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
+
+Inverse of the transaction is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
+
+Let $A=(S, \Sigma, \delta)$ and $S^{\langle 2 \rangle} = \{ \langle s_i, s_j \rangle | s_i,s_j \in S \}$ be set of multisets  with cardinality 2. For $\langle s_i, s_j \rangle \in S^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+
+Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$. If $C=S$, $w$ is called \textit{reset word} of automaton.
+
+
+
 
 \newpage
 \bibliographystyle{plain}
