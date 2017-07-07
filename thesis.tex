@@ -9,7 +9,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{algorithm2e}
+\usepackage[lined,ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{xspace,epsfig,url}
 \usepackage{pst-plot,pstricks-add}
 
@@ -165,7 +165,11 @@ $ $
 
 \comment{Sertac}{Reset word'den bahsedecegim.}
 
+\noindent
 \comment{Sertac}{Intro'da FSM'den bahsedecegim.}
+
+\noindent
+\comment{Sertac}{cycle synchrop synchropl gibi algoritmalardan bahsedecegim.}
 
 \newpage
 \section{Preliminaries}
@@ -178,7 +182,7 @@ When an {\em automaton} is complete and deterministic, it is defined by a triple
 \centering
 \includegraphics[width=0.7\textwidth]{figs/inverse.pdf}
 \caption{A synchronizable automaton $A$~(left), and the data structures we used to store and process
-the transition function $\delta^{-1}$  in memory (see Section~\ref{subsec:imp} for the details). A synchronizing sequence for $A$ is $abbbabbba$. \comment{sertac}{caption cok uzun belki iki figure olarak ayri ayri anlatabiliriz}}
+the transition function $\delta^{-1}$  in memory (see Section~... for the details). A synchronizing sequence for $A$ is $abbbabbba$. \comment{sertac}{caption cok uzun belki iki figure olarak ayri ayri anlatabiliriz}}
 \label{fig:inv}
 \vspace*{-3ex}
 \end{figure}
@@ -187,12 +191,118 @@ An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simpl
 
 Inverse of the transaction is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
 
-Let $A=(S, \Sigma, \delta)$ and $S^{\langle 2 \rangle} = \{ \langle s_i, s_j \rangle | s_i,s_j \in S \}$ be set of multisets  with cardinality 2. For $\langle s_i, s_j \rangle \in S^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+Let $A=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \langle s_i, s_j \rangle | s_i,s_j \in C \}$ be set of multisets  with cardinality 2. For $\langle s_i, s_j \rangle \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
 
-Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$. If $C=S$, $w$ is called \textit{reset word} of automaton.
+Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. If $C=S$, $w$ is called \textit{reset word} of automaton and the automaton is synchronizable.
 
 
+\section{Eppstein's \greedyAlgo Algorithm}
+In this section, Eppstein's \greedyAlgo is introduced. After that experiments and some analysis are shown. These analysis leads us to improve the speed of the algorithm.
 
+\begin{proposition}
+	\label{prop:synchronizable}
+	An automaton $A=(S,\Sigma,\delta)$ is synchronizable iff for all  $s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
+\end{proposition}
+
+The \greedyAlgo \space algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in section \ref{sec:Intro}, \greedyAlgo \space has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
+
+Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transaction function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of phase 2 is $O(pn^2)$. 
+
+Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set (F)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
+
+
+\renewcommand{\baselinestretch}{0.9}
+\begin{algorithm}
+	\label{algo:BFS}
+	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Output{A PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+	
+	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$;\\
+	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
+	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
+	
+	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$; \tcp{all singletons of $S^{\langle 2 \rangle}$}
+    $R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$; \tcp{all pairs of $S^{\langle 2 \rangle}$}
+	\While{$R$ is not empty and $F$ is not empty}
+	{
+		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$;\\
+	}
+\end{algorithm}
+\renewcommand{\baselinestretch}{1}
+
+Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging sequence of the pair is undefined and when a letter $x \in \Sigma$ is applied to the pair, resulting pair has merging sequence $w \in \Sigma^*$, then $\tau(\langle s_i,s_j \rangle) = x \cdot w$. Thanks to inverse of transaction function, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
+
+\renewcommand{\baselinestretch}{0.9}
+\begin{algorithm}
+	\label{algo:BFS-step-F2R}
+	\caption{{BFS\_step (F2R)}}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
+	
+	$F' \longleftarrow \emptyset$;\\
+	\ForEach{$ \langle s_i,s_j \rangle \in F$}
+	{
+		\ForEach{$x \in \Sigma$}
+		{
+			\ForEach{$\langle s'_i,s'_j\rangle$ such that $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			{
+				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau(\langle s'_i,s'_j\rangle)$ is undefined}
+				{
+					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j \rangle)$;\\
+					$F' = F' \cup \{ \langle s'_i,s'_j\rangle  \} $;\\
+				}
+			}
+		}
+	}
+	let $R'$ be $R \setminus F'$;
+\end{algorithm}
+\renewcommand{\baselinestretch}{1}
+
+When first phase is completed, algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus the phase 2 takes $O(n^?)$ and algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time.\comment{sertac}{mailde yazdigima gore revize etmek gerek.}
+
+\renewcommand{\baselinestretch}{0.9}
+\begin{algorithm}
+	\label{algo:greedy}
+	\caption{Eppstein's \textsc{Greedy} Algorithm}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
+	
+	%{--- Phase 1 ---}
+	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
+	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
+	{
+		report that $A$ is not synchronizable and exit;	
+	}
+
+	
+	%{--- Phase 2 ---}
+	$C = S$; \tcp{$C$ will keep track of the current set of states}
+	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
+	
+	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
+	{
+		find a pair $\langle s_i,s_j \rangle \in C^{\langle 2 \rangle}$ 
+		with minimum $|\tau(\langle s_i,s_j \rangle)|$ among all pairs 
+		in $C^{\langle 2 \rangle}$;\\
+		
+		
+		$\Gamma = \Gamma \; \tau(\langle s_i,s_j \rangle)$;\\
+		$C = \delta(C,\tau(\langle s_i,s_j \rangle))$;
+	}
+\end{algorithm}
+\renewcommand{\baselinestretch}{1}
+
+For small alphabet size and large number of states, second phase dominates the first phase in theory. However, experiments shows the contrary. Section \ref{sec:greedy-analysis} focuses on experiment results of \greedyAlgo and analysis of these experiments. \comment{sertac}{Biraz informal oldu sanki ama emin de olamadim}
+
+
+\subsection{Analysis on \greedyAlgo}
+\label{sec:greedy-analysis}
 
 \newpage
 \bibliographystyle{plain}
