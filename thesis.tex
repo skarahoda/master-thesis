@@ -71,19 +71,19 @@ Augustus, 2017
 \end{center}
 
 
-\newpage
+\clearpage
 $ $
 \thispagestyle{empty}
-\newpage
+\clearpage
 $ $
 \vspace{5cm}
 \begin{center}
-\copyright \hspace{0.1cm} \MyAuthor\space 2015
+\copyright \hspace{0.1cm} \MyAuthor\space 2017
 
 All Rights Reserved
 \thispagestyle{empty}
 \end{center}
-\newpage
+\clearpage
 
 \begin{center}
 \large
@@ -106,7 +106,7 @@ Keywords: ...
 \begin{abstract}
 ...
 \end{abstract}
-\newpage
+\clearpage
 
 \begin{center}
 \large
@@ -134,7 +134,7 @@ Anahtar Kelimeler: ...
 ...
 
 \end{quote}
-\newpage
+\clearpage
 $ $
 \vspace{2cm}
 \begin{center}
@@ -148,18 +148,18 @@ $ $
 %I would like to thank TUBITAK for the financial support provided.
 
 
-\newpage
+\clearpage
 \tableofcontents
 
-\newpage 
+\clearpage 
 \listoffigures
 
-\newpage
+\clearpage
 \listoftables
 
 
 
-\newpage
+\clearpage
 \section{Introduction}
 \label{sec:Intro}
 
@@ -171,7 +171,7 @@ $ $
 \noindent
 \comment{Sertac}{cycle synchrop synchropl gibi algoritmalardan bahsedecegim.}
 
-\newpage
+\clearpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
 FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transaction function without an output.
@@ -181,8 +181,7 @@ When an {\em automaton} is complete and deterministic, it is defined by a triple
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/inverse.pdf}
-\caption{A synchronizable automaton $A$~(left), and the data structures we used to store and process
-the transition function $\delta^{-1}$  in memory (see Section~... for the details). A synchronizing sequence for $A$ is $abbbabbba$. \comment{sertac}{caption cok uzun belki iki figure olarak ayri ayri anlatabiliriz}}
+\caption{A synchronizable automaton $A$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
 \label{fig:inv}
 \vspace*{-3ex}
 \end{figure}
@@ -195,18 +194,19 @@ Let $A=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \la
 
 Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. If $C=S$, $w$ is called \textit{reset word} of automaton and the automaton is synchronizable.
 
-
-\section{Eppstein's \greedyAlgo Algorithm}
-In this section, Eppstein's \greedyAlgo is introduced. After that experiments and some analysis are shown. These analysis leads us to improve the speed of the algorithm.
+\clearpage
+\section{Eppstein's \greedyAlgo \space Algorithm}
+\label{sec:greedy}
+In this section, Eppstein's \greedyAlgo \space is introduced. After that experiments and some analysis are shown. These analysis leads us to improve the speed of the algorithm.
 
 \begin{proposition}
 	\label{prop:synchronizable}
 	An automaton $A=(S,\Sigma,\delta)$ is synchronizable iff for all  $s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
 \end{proposition}
 
-The \greedyAlgo \space algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in section \ref{sec:Intro}, \greedyAlgo \space has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
+The \greedyAlgo \space Algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo \space has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
 
-Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transaction function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of phase 2 is $O(pn^2)$. 
+Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transaction function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
 
 Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set (F)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
 
@@ -262,7 +262,9 @@ Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging seque
 \end{algorithm}
 \renewcommand{\baselinestretch}{1}
 
-When first phase is completed, algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus the phase 2 takes $O(n^?)$ and algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time.\comment{sertac}{mailde yazdigima gore revize etmek gerek.}
+When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus Phase 2 takes $O(n^?)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time. At Section \ref{subsec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
+
+\comment{sertac}{complexity $O(n^3)$ mu demeliyiz yoksa $O(n^4)$ mu? interediate phaseden bahsetmeli miyiz?}
 
 \renewcommand{\baselinestretch}{0.9}
 \begin{algorithm}
@@ -298,13 +300,88 @@ When first phase is completed, algorithm \ref{algo:greedy} checks the automata i
 \end{algorithm}
 \renewcommand{\baselinestretch}{1}
 
-For small alphabet size and large number of states, second phase dominates the first phase in theory. However, experiments shows the contrary. Section \ref{sec:greedy-analysis} focuses on experiment results of \greedyAlgo and analysis of these experiments. \comment{sertac}{Biraz informal oldu sanki ama emin de olamadim}
-
 
 \subsection{Analysis on \greedyAlgo}
-\label{sec:greedy-analysis}
+\label{subsec:greedy-analysis}
 
-\newpage
+
+In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two phase structure is explained. Complexity of PMF construction, first phase, is $O(pn^2)$ and complexity of \greedyAlgo \space is based on Phase 2 of the algorithm which has $O(n^?)$ time complexity. To analyze the algorithm, we perform experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition to these automata we also use Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. Total 1200 randomly generated automata, in Table \ref{table:phase-comparison}, shows that the opposite of complexity calculation; first phase dominates the execution time of the algorithm.
+
+\begin{table}
+	\begin{center}
+	\scalebox{0.8}{
+		\begin{tabular}{r|rrr|rrr|rrr}
+		&\multicolumn{3}{|c}{$n = 2000$}&\multicolumn{3}{|c}{$n = 4000$}&\multicolumn{3}{|c}{$n = 8000$}\\
+		$p$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$\\\hline
+			2		& 0.172	& 0.185	& 0.929	& 1.184		& 1.240		& 0.954	& 5.899		& 6.325		& 0.933 \\
+			8		& 0.504	& 0.517	& 0.975	& 2.709		& 2.768		& 0.978	& 14.289	& 14.721	& 0.971 \\
+			32		& 2.113	& 2.126	& 0.994	& 9.925		& 9.986		& 0.994	& 51.783	& 52.233	& 0.991 \\
+			128		& 9.126	& 9.140	& 0.999	& 40.356	& 40.418	& 0.998	& 193.548	& 193.982	& 0.998 \\
+			cerny	& 0.096	& 4.836	& 0.020	& 1.026		& 42.771	& 0.024	& 5.584		& 797.692	& 0.007\\
+		\end{tabular}
+		}
+	\end{center}
+	\caption{Sequential PMF construction time ($t_{PMF}$), and overall time ($t_{ALL}$) in seconds}
+	\label{table:phase-comparison}
+\end{table}
+
+\comment{sertac}{Phase 2 kac iteration oldu deneyi eklenebilir}
+
+To understand the behavior of the algorithm, we extend our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, we take the length of merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence.For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation, Phase 2 tends to pick smaller length of merging sequences. For example, when we take automata with 8000 states and 2 letters, The longest merging sequence in PMF has length 16.9 and Phase uses only merging sequences with length 12.1 and less, on average. It means merging sequences of almost \%30 of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
+
+\begin{table}
+\center
+\begin{tabular}{r|rrr|rrr|rrr}
+ & \multicolumn{3}{c|}{n=2000} & \multicolumn{3}{c|}{n=4000} & \multicolumn{3}{c}{n=8000} \\
+p &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}$ &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}$ &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}$ \\ \hline
+ 2 &  14.2 &  10.0 &  1.9 &  15.5 &  11.2 &  1.9 &  16.9 &  12.1 &  1.9 \\
+ 8 &  5.0 &  4.0 &  1.3 &  6.0 &  4.2 &  1.3 &  6.0 &  4.6 &  1.3 \\
+ 32 &  3.1 &  2.7 &  1.1 &  4.0 &  2.9 &  1.1 &  4.0 &  3.0 &  1.1 \\
+ 128 &  3.0 &  2.0 &  1.0 &  3.0 &  2.0 &  1.0 &  3.0 &  2.1 &  1.0
+\end{tabular}
+\caption{The length of longest merging sequence in PMF($h_{PMF}$) constructed in Phase 1; maximum ($h_{max}$), and average ($h_{mean}$) lengths for merging sequences, used in Phase 2 of \greedyAlgo. \comment{sertac}{cerny deneyleri}}
+\label{table:levels}
+\end{table}
+
+\begin{figure}
+	\centering
+	\subfigure[$n = 2000$]{
+		\includegraphics[width=0.45\textwidth]{figs/node_2000.png}
+	}
+	\subfigure[$n = 4000$]{
+		\includegraphics[width=0.45\textwidth]{figs/node_4000.png}
+	}
+	\subfigure[$n = 8000$]{
+		\includegraphics[width=0.45\textwidth]{figs/node_8000.png}
+	}
+	\caption{The percentage of nodes at each level in PMF \comment{sertac}{distance yerine length yazmak lazim. Daha okunabilir ve diger graphlerle uyumlu bir halini yapmak icin graphlerin exceldeki hallerini bulmam lazim}}
+	\label{fig:nodes-at-levels}
+	\vspace*{-2.5ex}
+\end{figure}
+
+
+With the help of experiments, we observe that execution time of PMF construction phase dominates \greedyAlgo \space Algorithm. We also notice that all information from first phase is not used in second phase. Therefore we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. Also some algorithmic improvements to prevent unnecessary computations in first phase are introduced in Section \ref{sec:speedup}.
+
+\clearpage
+\section{Parallelization on \greedyAlgo}
+\label{sec:parallel}
+
+
+
+\clearpage
+\section{Speeding up the Fastest}
+\label{sec:speedup}
+\comment{sertac}{Makalenin ismi guzel oldugu icin onu yazdim ama baska isim koymak gerekir mi emin olamadim.}
+
+
+
+\clearpage
+\section{Conclusion and Future Works}
+\label{sec:conclusion}
+
+\comment{sertac}{speeding up the fastest lookahead implementation'da hesapladigimiz merging sequencelari kaydetmiyoruz. onlari kaydederek giden bir algoritma daha hizli olabilir belki.}
+
+\clearpage
 \bibliographystyle{plain}
 \bibliography{thesis}
 
