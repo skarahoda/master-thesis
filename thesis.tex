@@ -12,6 +12,12 @@
 \usepackage[lined,ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{xspace,epsfig,url}
 \usepackage{pst-plot,pstricks-add}
+\usepackage{etoolbox}
+\usepackage{setspace}
+
+\AtBeginEnvironment{algorithm}{\setstretch{1}}
+
+\SetKwFor{ForEachP}{foreach}{in parallel do}{end}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}[theorem]{Definition}
@@ -157,7 +163,8 @@ $ $
 \clearpage
 \listoftables
 
-
+\clearpage
+\listofalgorithms
 
 \clearpage
 \section{Introduction}
@@ -174,11 +181,11 @@ $ $
 \clearpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
-FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transaction function without an output.
+FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transition function without an output.
 
 When an {\em automaton} is complete and deterministic, it is defined by a triple $A=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton $A$ is at a state $s$ and if an input $x$ is applied, then $A$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton $A$ with 4 states and 2 inputs using graphical notation.\looseness=-1
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/inverse.pdf}
 \caption{A synchronizable automaton $A$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
@@ -186,11 +193,13 @@ When an {\em automaton} is complete and deterministic, it is defined by a triple
 \vspace*{-3ex}
 \end{figure}
 
-An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. Transition function $\delta$ can be extended to a set of states and to a word in the usual way. With fact $\delta(s,\varepsilon)=s$, let a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, then $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, transaction function is $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
+An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. Transition function $\delta$ can be extended to a set of states and to a word in the usual way. With fact $\delta(s,\varepsilon)=s$, let a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, then $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, transition function is $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
 
-Inverse of the transaction is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
+Inverse of the transition is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
 
 Let $A=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \langle s_i, s_j \rangle | s_i,s_j \in C \}$ be set of multisets  with cardinality 2. For $\langle s_i, s_j \rangle \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+
+An automata which produced from set of pairs; ${\cal A}=(S^{\langle 2 \rangle},\Sigma,\Delta)$ is called \textit{pair automata}. For pair automata, set of inputs are same and transition function is $\Delta(\langle s_i,s_j \rangle,x) = \langle \delta(s_i,x), \delta(s_j,x)\rangle$. \comment{sertac}{pair automata icin figure cizilebilir}
 
 Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. If $C=S$, $w$ is called \textit{reset word} of automaton and the automaton is synchronizable.
 
@@ -206,14 +215,13 @@ In this section, Eppstein's \greedyAlgo \space is introduced. After that experim
 
 The \greedyAlgo \space Algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo \space has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
 
-Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transaction function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
+Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transition function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
 
-Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set (F)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
+Algorithm \ref{algo:BFS-F2R} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set ($F$)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS-F2R} new frontier and remaining sets are computed for next level. 
 
 
-\renewcommand{\baselinestretch}{0.9}
-\begin{algorithm}
-	\label{algo:BFS}
+\begin{algorithm}[ht]
+	\label{algo:BFS-F2R}
 	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
 	\Input{An automaton $A=(S,\Sigma,\delta)$}
@@ -230,12 +238,10 @@ Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , w
 		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$;\\
 	}
 \end{algorithm}
-\renewcommand{\baselinestretch}{1}
 
-Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging sequence of the pair is undefined and when a letter $x \in \Sigma$ is applied to the pair, resulting pair has merging sequence $w \in \Sigma^*$, then $\tau(\langle s_i,s_j \rangle) = x \cdot w$. Thanks to inverse of transaction function, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
+Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging sequence of the pair is undefined and when a letter $x \in \Sigma$ is applied to the pair, resulting pair has merging sequence $w \in \Sigma^*$, then $\tau(\langle s_i,s_j \rangle) = x \cdot w$. Thanks to inverse of transition function, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
 
-\renewcommand{\baselinestretch}{0.9}
-\begin{algorithm}
+\begin{algorithm}[ht]
 	\label{algo:BFS-step-F2R}
 	\caption{{BFS\_step (F2R)}}
 	
@@ -260,14 +266,12 @@ Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging seque
 	}
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
-\renewcommand{\baselinestretch}{1}
 
-When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus Phase 2 takes $O(n^?)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time. At Section \ref{subsec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
+When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus Phase 2 takes $O(n^?)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
 
 \comment{sertac}{complexity $O(n^3)$ mu demeliyiz yoksa $O(n^4)$ mu? interediate phaseden bahsetmeli miyiz?}
 
-\renewcommand{\baselinestretch}{0.9}
-\begin{algorithm}
+\begin{algorithm}[ht]
 	\label{algo:greedy}
 	\caption{Eppstein's \textsc{Greedy} Algorithm}
 	
@@ -276,7 +280,7 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
 	
 	%{--- Phase 1 ---}
-	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
+	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS-F2R}\;
 	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
 	{
 		report that $A$ is not synchronizable and exit;	
@@ -298,16 +302,15 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 		$C = \delta(C,\tau(\langle s_i,s_j \rangle))$;
 	}
 \end{algorithm}
-\renewcommand{\baselinestretch}{1}
 
 
 \subsection{Analysis on \greedyAlgo}
-\label{subsec:greedy-analysis}
+\label{sec:greedy-analysis}
 
 
 In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two phase structure is explained. Complexity of PMF construction, first phase, is $O(pn^2)$ and complexity of \greedyAlgo \space is based on Phase 2 of the algorithm which has $O(n^?)$ time complexity. To analyze the algorithm, we perform experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition to these automata we also use Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. Total 1200 randomly generated automata, in Table \ref{table:phase-comparison}, shows that the opposite of complexity calculation; first phase dominates the execution time of the algorithm.
 
-\begin{table}
+\begin{table}[ht]
 	\begin{center}
 	\scalebox{0.8}{
 		\begin{tabular}{r|rrr|rrr|rrr}
@@ -329,7 +332,7 @@ In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two
 
 To understand the behavior of the algorithm, we extend our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, we take the length of merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence.For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation, Phase 2 tends to pick smaller length of merging sequences. For example, when we take automata with 8000 states and 2 letters, The longest merging sequence in PMF has length 16.9 and Phase uses only merging sequences with length 12.1 and less, on average. It means merging sequences of almost \%30 of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
 
-\begin{table}
+\begin{table}[ht]
 \center
 \begin{tabular}{r|rrr|rrr|rrr}
  & \multicolumn{3}{c|}{n=2000} & \multicolumn{3}{c|}{n=4000} & \multicolumn{3}{c}{n=8000} \\
@@ -343,7 +346,7 @@ p &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}$ &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}
 \label{table:levels}
 \end{table}
 
-\begin{figure}
+\begin{figure}[ht]
 	\centering
 	\subfigure[$n = 2000$]{
 		\includegraphics[width=0.45\textwidth]{figs/node_2000.png}
@@ -366,6 +369,51 @@ With the help of experiments, we observe that execution time of PMF construction
 \section{Parallelization on \greedyAlgo}
 \label{sec:parallel}
 
+Section \ref{sec:greedy-analysis} conclude that PMF construction is the bottleneck of \greedyAlgo . To minimize the cost of PMF construction, we implement various algorithms. In this section parallel algorithms are introduced.
+
+Algorithm \ref{algo:BFS-F2R} is a BFS algorithm which starts from singletons and searches the merging sequences of all pairs. Length of the merging sequence for a pair represents level of the pair in BFS tree. Since the merging sequence of singletons is $\epsilon$, The algorithm initially sets singletons as level 0 nodes. To find $k^{th}$ level nodes, Algorithm \ref{algo:BFS-step-F2R} gets $k-1^{st}$ level as frontier set. The cost of processing each pair in frontier set, depends on inverse of transition function $\delta^{-1}$. Likewise the cost of each iteration depends on the number of pair in frontier set. Therefore the cost of each task and number of task in each iteration vary. In CPU parallelization, we use OpenMP and dynamic scheduling to handle tasks. 
+
+\comment{sertac}{BFS icin ornek figure cizilebilir}
+
+\subsection{Frontier to Remaining in Parallel}
+\label{sec:BFS-F2R-parallel}
+
+While finding pair from $k^{th}$ level (setting $k^{th}$ level as next frontier set $F'$) the algorithm have to ensure that all pairs from $k-1^{st}$ level are found. Likewise, the algorithm shall process all pairs from $i^{th}$ level(using $i^{th}$ level as frontier set $F$) before process a pair from $i+1{th}$ level. Since sequential algorithm for PMF construction process one pair at a time, a simple queue is enough to schedule processing of pairs. The algortihm stores singletons, level 0 nodes and picks the next processed node from the beginning of the queue. When a new pair is found, the algorithm pushes the pair at the end of queue. Using queue is a flawless method to maintain the dependency between tasks. Implementing parallel version of the algorithm is not easy as sequential version. Each thread shall process pairs from same level to preserve task dependency. Using queue is not enough and a barrier mechanism is needed.
+
+\begin{algorithm}[ht]
+	\label{algo:BFS-step-F2R-Parallel}
+	\caption{BFS\_step\_F2R (in parallel)}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
+	
+	\lForEach{thread $t$}{
+		$F'_t \longleftarrow \emptyset$
+	}
+	\ForEachP{$\langle s_i,s_j\rangle \in F$}
+	{
+		\ForEach{$x \in \Sigma$}
+		{
+			\ForEach{$\langle s'_i,s'_j\rangle$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			{
+				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau({\langle s'_i,s'_j\rangle})$ is undefined}
+				{
+					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j\rangle )$;\\
+					$F'_t = F'_t \cup \{ \langle s'_i,s'_j \rangle  \} $;\\
+				}
+			}
+		}
+	}
+	$F' \longleftarrow \emptyset$;\\
+	\lForEach{thread t}{
+		$F' = F' \cup F'_t$
+	}
+	let $R'$ be $R \setminus F'$;
+\end{algorithm}
+
+In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$ and $F'$. Threads partition all pairs in $F$. When the algorithm finds a new pair, it pushes to new frontier set. Since pushing an item to a set is not atomic operation, we also change the process of pushing a pair to the next frontier set. The easiest way is putting the operation to a critical region. However this is not a time efficient method. So we implement a lock-free mechanism, instead of global $F'$, each thread stores a local $F'$. When all pairs from $F$ are processed, a thread(master thread) merges local $F'$s in a sequential manner. Lock free mechanism comes with a drawback. When two threads find same pair $\langle s'_i,s'_j\rangle$, at line 6 of Algorithm \ref{algo:BFS-step-F2R-Parallel}, at the same time, then both of them pushes the same pair to $F'$ and duplicate data is occurred. Our experimental observations shows that at most thousandth of $|F'|$ pairs are duplicate. Since duplicate pair does not effect the correctness of the algorithm, we exchange the time cost of eliminating duplicate entry and time cost of extra pair, which is negligible compered to earlier.
+
 
 
 \clearpage
@@ -380,6 +428,8 @@ With the help of experiments, we observe that execution time of PMF construction
 \label{sec:conclusion}
 
 \comment{sertac}{speeding up the fastest lookahead implementation'da hesapladigimiz merging sequencelari kaydetmiyoruz. onlari kaydederek giden bir algoritma daha hizli olabilir belki.}
+
+\comment{sertac}{algoritmalar icin web interface}
 
 \clearpage
 \bibliographystyle{plain}
