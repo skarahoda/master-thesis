@@ -462,10 +462,116 @@ Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref
 
 \subsection{Hybrid Approach}
 \label{sec:BFS-Hybrid-parallel}
+The cost of Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel} is closely related to the size of frontier set $F$ and remaining set $R$ respectively. Initially $R$ is set of all pairs and $F$ is set of all singletons. The size of $R$ decreases by the size of $F$ at each iteration. Our preliminary observations, like in Figure \ref{fig:BFS-vtcomparison}, also show that the size of $R$ is bigger than the size of $F$ in early stages, but later iteration situation becomes contrary. At each iteration it is possible to predict the cost of F2R and R2F algorithms and picks less costly one in a hybrid manner. 
+
+
+\begin{figure}[ht]
+\centering
+\subfigure[$p = 8$, \# of vertices]{
+\includegraphics[width=0.44\textwidth]{figs/8v_gray.pdf}
+}
+\subfigure[$p = 8$, execution time]{
+\includegraphics[width=0.44\textwidth]{figs/8t_gray.pdf}
+}
+\quad
+\subfigure[$p = 128$, \# of vertices]{
+\includegraphics[width=0.44\textwidth]{figs/128v_gray.pdf}
+}
+\subfigure[$p = 128$, execution time]{
+\includegraphics[width=0.44\textwidth]{figs/128t_gray.pdf}
+}
+\caption{The number of frontier and remaining vertices at each BFS level and the corresponding execution times of F2R and R2F while constructing the PMF $\tau$ for $n = 2000$ and $p = 8$~(top) and $p=128$~(bottom). 
+\comment{sertac}{sayilardaki virguller nokta olmali.}%As described above, F2R processes the edges of the frontier vertices at each level, whereas R2F processes those of the remaining vertices.
+}
+\label{fig:BFS-vtcomparison}
+\vspace*{-3ex}
+\end{figure}
+
+The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite{Beamer}. Since the algorithms check all edges, determining the cost of each iteration by the number of edge is the most precise technique like in \cite{Beamer}. On a simple graph counting the edges is an effortless operation. However in our work, the BFS algorithm is applied to pair autamton ${\cal A}$ which is not actually created. For each pair it requires $O(p)$ time to count number of edges for F2R. That means estimating the cost of F2R and R2F from edges takes $O(pn^2)$ which is the same time complexity of the BFS algorithm itself. For R2F, the number of edge per vertex is fixed to alphabet size. For F2R, the number of edge per vertex depends on the vertex. However the value is alphabet size, like in R2F, on average. Therefore assuming the number of edges approximately equals to number of vertices times alphabet size is a fine acceptance, and it is also possible to predict the costs by number of vertices.
 
 
 
+\begin{algorithm}[ht]
+	\label{algo:BFS-Hybrid}
+	\caption{Computing a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$ (Hybrid)}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Output{A function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+	
+	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$\\
+	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
+	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
+	
+	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$; 
+	$R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$;
+	\While{$F$ is not empty}
+	{
+		\If{$|F| < |R|$}
+		{
+			$F,R,\tau \longleftarrow \mbox{BFS\_step\_F2R}(A,F,R,\tau)$;\\
+		}
+		\Else
+		{
+			$F,R,\tau \longleftarrow \mbox{BFS\_step\_R2F}(A,F,R,\tau)$;\\
+		}
+	}
+\end{algorithm}
 
+\subsection{GPU Parallelization}
+\label{sec:BFS-GPU}
+\comment{sertac}{intro olarak GPU mimariden burada mi bahsetmeli?}
+In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different parallel algorithms are suggested. In both Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses local sets. At the end of iteration, the algorithm merges the local sets to construct the global one. Since GPUs have planty threads, It can be costly to merge enormous number of local set. In addition, GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create significant number of duplicate pair. Therefore, we use another approach to take out local set mechanism. \comment{sertac}{bu konuda birilerine cite etmek gerekebilir. Daha once benzer isi yapmis olan paperlar konulabilir. Paper bulmam lazim.} In the new approach, we called S2R and S2F, the algorithm process from $S^{\langle 2 \rangle}$, instead of $R$ or $F$.
+
+\begin{algorithm}[ht]
+	\label{algo:BFS-step-S2R-Parallel}
+	\caption{BFS\_step\_S2R (in parallel)}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier level $f$, $\tau$}
+	\Output{updated function $\tau$}
+	
+	\ForEachP{$\langle s_i,s_j\rangle \in S^2$}
+	{
+		\If{$|\tau(\langle s_i, s_j\rangle)| = f$}{
+		\ForEach{$x \in \Sigma$}
+		{
+			\ForEach{$\langle s'_i,s'_j\rangle$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			{
+				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau({\langle s'_i,s'_j\rangle})$ is undefined}
+				{
+					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j\rangle )$;\\
+				}
+			}
+		}}
+	}
+	
+\end{algorithm}
+
+\begin{algorithm}[ht]
+	\label{algo:BFS-step-S2F-Parallel}
+	\caption{BFS\_step\_S2F (in parallel)}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$, $\tau$}
+	\Output{updated function $\tau$}
+	
+		\ForEachP{$\langle s_i,s_j\rangle \in S^2$}
+		{
+			\If{$\tau(\langle s_i, s_j\rangle)$ is undefined}{
+			\ForEach{$x \in \Sigma$}
+			{
+				$\langle s'_i, s'_j \rangle \longleftarrow \langle \delta(s_i,x),\delta(s_j,x) \rangle$; \\ 
+
+				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in F$}){$\tau(\langle s'_i, s'_j\rangle)$ is defined}
+				{
+					$\tau(\langle s_i, s_j\rangle) \longleftarrow x \tau(\langle s'_i, s'_j\rangle)$;\\
+					{\bf break};\\
+				}
+			}
+			}
+		}
+\end{algorithm}
 \clearpage
 \section{Speeding up the Fastest}
 \label{sec:speedup}
@@ -477,7 +583,7 @@ Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref
 \section{Conclusion and Future Works}
 \label{sec:conclusion}
 
-\comment{sertac}{speeding up the fastest lookahead implementation'da hesapladigimiz merging sequencelari kaydetmiyoruz. onlari kaydederek giden bir algoritma daha hizli olabilir belki.}
+\comment{sertac}{speeding up the fastest lookahead implementation'da he- sapladigimiz merging sequencelari kaydetmiyoruz. onlari kaydederek giden bir algoritma daha hizli olabilir belki.}
 
 \comment{sertac}{algoritmalar icin web interface}
 
