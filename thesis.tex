@@ -217,11 +217,11 @@ The \greedyAlgo \space Algorithm is one of the fastest algorithm among the reset
 
 Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transition function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
 
-Algorithm \ref{algo:BFS-F2R} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set ($F$)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS-F2R} new frontier and remaining sets are computed for next level. 
+Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set ($F$)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
 
 
 \begin{algorithm}[ht]
-	\label{algo:BFS-F2R}
+	\label{algo:BFS}
 	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
 	\Input{An automaton $A=(S,\Sigma,\delta)$}
@@ -239,7 +239,12 @@ Algorithm \ref{algo:BFS-F2R} keeps track of most recent computed mergeable pairs
 	}
 \end{algorithm}
 
-Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, if merging sequence of the pair is undefined and when a letter $x \in \Sigma$ is applied to the pair, resulting pair has merging sequence $w \in \Sigma^*$, then $\tau(\langle s_i,s_j \rangle) = x \cdot w$. Thanks to inverse of transition function, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
+\begin{proposition}
+	\label{prop:merging}
+	Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x \cdot w$ is a merging sequence for the pair $\langle s_i,s_j \rangle$.
+\end{proposition}
+
+Thanks to inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-step-F2R}
@@ -280,7 +285,7 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
 	
 	%{--- Phase 1 ---}
-	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS-F2R}\;
+	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
 	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
 	{
 		report that $A$ is not synchronizable and exit;	
@@ -371,14 +376,14 @@ With the help of experiments, we observe that execution time of PMF construction
 
 Section \ref{sec:greedy-analysis} conclude that PMF construction is the bottleneck of \greedyAlgo . To minimize the cost of PMF construction, we implement various algorithms. In this section parallel algorithms are introduced.
 
-Algorithm \ref{algo:BFS-F2R} is a BFS algorithm which starts from singletons and searches the merging sequences of all pairs. Length of the merging sequence for a pair represents level of the pair in BFS tree. Since the merging sequence of singletons is $\epsilon$, The algorithm initially sets singletons as level 0 nodes. To find $k^{th}$ level nodes, Algorithm \ref{algo:BFS-step-F2R} gets $k-1^{st}$ level as frontier set. The cost of processing each pair in frontier set, depends on inverse of transition function $\delta^{-1}$. Likewise the cost of each iteration depends on the number of pair in frontier set. Therefore the cost of each task and number of task in each iteration vary. In CPU parallelization, we use OpenMP and dynamic scheduling to handle tasks. 
+Algorithm \ref{algo:BFS} is a BFS algorithm which starts from singletons and searches the merging sequences of all pairs. Length of the merging sequence for a pair represents level of the pair in BFS tree. Since the merging sequence of singletons is $\epsilon$, The algorithm initially sets singletons as level 0 nodes. To find $k^{th}$ level nodes, Algorithm \ref{algo:BFS-step-F2R} gets $k-1^{st}$ level as frontier set. The cost of processing each pair in frontier set, depends on inverse of transition function $\delta^{-1}$. Likewise the cost of each iteration depends on the number of pair in frontier set. Therefore the cost of each task and number of task in each iteration vary. In CPU parallelization, we use OpenMP and dynamic scheduling to handle tasks. 
 
 \comment{sertac}{BFS icin ornek figure cizilebilir}
 
 \subsection{Frontier to Remaining in Parallel}
 \label{sec:BFS-F2R-parallel}
 
-While finding pair from $k^{th}$ level (setting $k^{th}$ level as next frontier set $F'$) the algorithm have to ensure that all pairs from $k-1^{st}$ level are found. Likewise, the algorithm shall process all pairs from $i^{th}$ level(using $i^{th}$ level as frontier set $F$) before process a pair from $i+1{th}$ level. Since sequential algorithm for PMF construction process one pair at a time, a simple queue is enough to schedule processing of pairs. The algortihm stores singletons, level 0 nodes and picks the next processed node from the beginning of the queue. When a new pair is found, the algorithm pushes the pair at the end of queue. Using queue is a flawless method to maintain the dependency between tasks. Implementing parallel version of the algorithm is not easy as sequential version. Each thread shall process pairs from same level to preserve task dependency. Using queue is not enough and a barrier mechanism is needed.
+While finding pair from $k^{th}$ level (setting $k^{th}$ level as next frontier set $F'$) the algorithm have to ensure that all pairs from $k-1^{st}$ level are found. Likewise, the algorithm shall process all pairs from $i^{th}$ level(using $i^{th}$ level as frontier set $F$) before process a pair from $i+1^{st}$ level. Since sequential algorithm for PMF construction process one pair at a time, a simple queue is enough to schedule processing of pairs. The algorithm stores singletons, level 0 nodes and picks the next processed node from the beginning of the queue. When a new pair is found, the algorithm pushes the pair at the end of queue. Using queue is a flawless method to maintain the dependency between tasks. Implementing parallel version of the algorithm is not easy as sequential version. Each thread shall process pairs from same level to preserve task dependency. Using queue is not enough and a barrier mechanism is needed.
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-step-F2R-Parallel}
@@ -412,7 +417,52 @@ While finding pair from $k^{th}$ level (setting $k^{th}$ level as next frontier 
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$ and $F'$. Threads partition all pairs in $F$. When the algorithm finds a new pair, it pushes to new frontier set. Since pushing an item to a set is not atomic operation, we also change the process of pushing a pair to the next frontier set. The easiest way is putting the operation to a critical region. However this is not a time efficient method. So we implement a lock-free mechanism, instead of global $F'$, each thread stores a local $F'$. When all pairs from $F$ are processed, a thread(master thread) merges local $F'$s in a sequential manner. Lock free mechanism comes with a drawback. When two threads find same pair $\langle s'_i,s'_j\rangle$, at line 6 of Algorithm \ref{algo:BFS-step-F2R-Parallel}, at the same time, then both of them pushes the same pair to $F'$ and duplicate data is occurred. Our experimental observations shows that at most thousandth of $|F'|$ pairs are duplicate. Since duplicate pair does not effect the correctness of the algorithm, we exchange the time cost of eliminating duplicate entry and time cost of extra pair, which is negligible compered to earlier.
+In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$ and $F'$. Threads partition all pairs in $F$. When the algorithm finds a new pair, it pushes to new frontier set. Since pushing an item to a set is not atomic operation, we also change the process of pushing a pair to the next frontier set. The easiest way is putting the operation to a critical region. However this is not a time efficient method. So we implement a lock-free mechanism, instead of global $F'$, each thread stores a local $F'$. When all pairs from $F$ are processed, a thread(master thread) merges local $F'$s in a sequential manner. Lock free mechanism comes with a drawback. When two threads find same pair $\langle s'_i,s'_j\rangle$, at line 6 of Algorithm \ref{algo:BFS-step-F2R-Parallel}, at the same time, then both of them pushes the same pair to $F'$ and duplicate data is occurred. In CPU parallelization, our experimental observations shows that at most thousandth of $|F'|$ pairs are duplicate. Since duplicate pair does not effect the correctness of the algorithm, we avoid the time cost of eliminating duplicate pair by using processing extra pair whose time cost is negligible compered to earlier. Except the redundant computation, duplicate pair is also obstacle to implement $R'$ (line 8). In parallel implementation, Algorithm  \ref{algo:BFS} can check only $F$ (line 5).  
+
+\subsection{Remaining to Frontier}
+\label{sec:BFS-R2F-parallel}
+
+Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref{algo:BFS-step-F2R} and \ref{algo:BFS-step-F2R-Parallel}, is most natural and common way for a BFS algorithm. Another approach is processing the remaining set $R$, to find $F'$, we called as \textit{remaining to frontier (R2F)}. The main difference R2F uses transition function $\delta$ as edges, compared to F2R uses $\delta^{-1}$. Thanks to Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-R2F-Parallel} searches all pairs $\langle s_i,s_j\rangle \in R$ and applies all possible letters $x \in \Sigma$. If the algorithm finds a merging sequence $\delta(\langle s_i,s_j\rangle, x) = w$ (lines 4-6), then it sets $\tau = (\langle s_i,s_j\rangle) = x \cdot w$ (lines 7-9), otherwise the pair remains in the next remaining set $R'$ (lines 10, 11). Like in Algorithm \ref{algo:BFS-step-F2R-Parallel}, Algorithm \ref{algo:BFS-step-R2F-Parallel} also uses local sets. Each thread $t$ uses own local the next remaining set $R'_t$ for lock-free parallelization. Note that, each thread process different pair $\langle s_i,s_j\rangle$, hence there is no duplicate pair in $R'$; Algorithm \ref{algo:BFS} can uses $R$ and the algorithm iterates one less compared to F2R. However R2F algorithm process a pair at each iteration until merging sequence of that pair is found.
+
+\begin{algorithm}[ht]
+	\label{algo:BFS-step-R2F-Parallel}
+	\caption{BFS\_step\_R2F (in parallel)}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
+	
+		\lForEach{thread t}{$R'_t \longleftarrow \emptyset$}
+		\ForEachP{$\langle s_i,s_j\rangle \in R$}
+		{
+			$connected  \longleftarrow $ {\bf false};\\
+			\ForEach{$x \in \Sigma$}
+			{
+				$\langle s'_i, s'_j \rangle \longleftarrow \langle \delta(s_i,x),\delta(s_j,x) \rangle$; \\ 
+
+				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in F$}){$\tau(\langle s'_i, s'_j\rangle)$ is defined}
+				{
+					$\tau(\langle s_i, s_j\rangle) \longleftarrow x \tau(\langle s'_i, s'_j\rangle)$;\\
+					$connected  \longleftarrow $ {\bf true};\\
+					{\bf break};\\
+				}
+			}
+			\If{not $connected$}
+			{
+					$R'_t = R'_t \cup \{ \langle s_i, s_j\rangle \} $;\\
+			}
+		}
+		$R' \longleftarrow \emptyset$;\\
+		\lForEach{thread t}{
+			$R' = R' \cup R'_t$
+		}
+		let $F'$ be $R \setminus R'$;
+\end{algorithm}
+
+
+\subsection{Hybrid Approach}
+\label{sec:BFS-Hybrid-parallel}
+
 
 
 
