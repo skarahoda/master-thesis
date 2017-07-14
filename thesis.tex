@@ -241,7 +241,7 @@ Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , w
 
 \begin{proposition}
 	\label{prop:merging}
-	Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x \cdot w$ is a merging sequence for the pair $\langle s_i,s_j \rangle$.
+	Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x\;w$ is a merging sequence for the pair $\langle s_i,s_j \rangle$.
 \end{proposition}
 
 Thanks to inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
@@ -272,7 +272,7 @@ Thanks to inverse of transition function and Proposition \ref{prop:merging}, Alg
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$. Line 8 takes constant time. the complexity of computation line 9 is $O(n^?)$. Thus Phase 2 takes $O(n^?)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^?)$ time. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
+When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of merging sequance can be at most $n^2$; the complexity of computation line 9 is $O(n^3)$ for one iteration. Thus Phase 2 takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. The upper bounds of the phases is a sligthly different. For a synchronizable automata, first phase $\Omega(n^2)$ since it finds a merging sequence for all pairs. At best case, phase two takes a merging sequnence with length of 1, which is also reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis. 
 
 \comment{sertac}{complexity $O(n^3)$ mu demeliyiz yoksa $O(n^4)$ mu? interediate phaseden bahsetmeli miyiz?}
 
@@ -313,7 +313,7 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 \label{sec:greedy-analysis}
 
 
-In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two phase structure is explained. Complexity of PMF construction, first phase, is $O(pn^2)$ and complexity of \greedyAlgo \space is based on Phase 2 of the algorithm which has $O(n^?)$ time complexity. To analyze the algorithm, we perform experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition to these automata we also use Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. Total 1200 randomly generated automata, in Table \ref{table:phase-comparison}, shows that the opposite of complexity calculation; first phase dominates the execution time of the algorithm.
+In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two phase structure is explained. Complexity of PMF construction, first phase, is $O(pn^2)$ and complexity of \greedyAlgo \space is based on Phase 2 of the algorithm which has $O(n^4)$ time complexity. To analyze the algorithm, we perform experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition to these automata we also use Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. Total 1200 randomly generated automata, in Table \ref{table:phase-comparison}, shows that the opposite of complexity calculation; first phase dominates the execution time of the algorithm.
 
 \begin{table}[ht]
 	\begin{center}
@@ -422,7 +422,7 @@ In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$
 \subsection{Remaining to Frontier}
 \label{sec:BFS-R2F-parallel}
 
-Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref{algo:BFS-step-F2R} and \ref{algo:BFS-step-F2R-Parallel}, is most natural and common way for a BFS algorithm. Another approach is processing the remaining set $R$, to find $F'$, we called as \textit{remaining to frontier (R2F)}. The main difference R2F uses transition function $\delta$ as edges, compared to F2R uses $\delta^{-1}$. Thanks to Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-R2F-Parallel} searches all pairs $\langle s_i,s_j\rangle \in R$ and applies all possible letters $x \in \Sigma$. If the algorithm finds a merging sequence $\delta(\langle s_i,s_j\rangle, x) = w$ (lines 4-6), then it sets $\tau = (\langle s_i,s_j\rangle) = x \cdot w$ (lines 7-9), otherwise the pair remains in the next remaining set $R'$ (lines 10, 11). Like in Algorithm \ref{algo:BFS-step-F2R-Parallel}, Algorithm \ref{algo:BFS-step-R2F-Parallel} also uses local sets. Each thread $t$ uses own local the next remaining set $R'_t$ for lock-free parallelization. Note that, each thread process different pair $\langle s_i,s_j\rangle$, hence there is no duplicate pair in $R'$; Algorithm \ref{algo:BFS} can uses $R$ and the algorithm iterates one less compared to F2R. However R2F algorithm process a pair at each iteration until merging sequence of that pair is found.
+Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref{algo:BFS-step-F2R} and \ref{algo:BFS-step-F2R-Parallel}, is most natural and common way for a BFS algorithm. Another approach is processing the remaining set $R$, to find $F'$, we called as \textit{remaining to frontier (R2F)}. The main difference R2F uses transition function $\delta$ as edges, compared to F2R uses $\delta^{-1}$. Thanks to Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-R2F-Parallel} searches all pairs $\langle s_i,s_j\rangle \in R$ and applies all possible letters $x \in \Sigma$. If the algorithm finds a merging sequence $\delta(\langle s_i,s_j\rangle, x) = w$ (lines 4-6), then it sets $\tau = (\langle s_i,s_j\rangle) = x \; w$ (lines 7-9), otherwise the pair remains in the next remaining set $R'$ (lines 10, 11). Like in Algorithm \ref{algo:BFS-step-F2R-Parallel}, Algorithm \ref{algo:BFS-step-R2F-Parallel} also uses local sets. Each thread $t$ uses own local the next remaining set $R'_t$ for lock-free parallelization. Note that, each thread process different pair $\langle s_i,s_j\rangle$, hence there is no duplicate pair in $R'$; Algorithm \ref{algo:BFS} can uses $R$ and the algorithm iterates one less compared to F2R. However R2F algorithm process a pair at each iteration until merging sequence of that pair is found.
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-step-R2F-Parallel}
@@ -503,8 +503,8 @@ The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite
 	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
 	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
 	
-	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$; 
-	$R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$;
+	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$;\\
+	$R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$;\\
 	\While{$F$ is not empty}
 	{
 		\If{$|F| < |R|$}
@@ -578,48 +578,55 @@ In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different pa
 \label{sec:speedup}
 \comment{sertac}{Makalenin ismi guzel oldugu icin onu yazdim ama baska isim koymak gerekir mi emin olamadim.}
 
-\greedyAlgo \space algorithm has two main phases: PMF construction and reset word generation via merging sequences. The observations from Section \ref{sec:greedy-analysis} shows that first phase dominates the execution time of the algorithm. However, second phase does not use all merging sequences to construct reset word. Therefore the second phase can use a partial PMF and we propose three algorithmic enhancement for \greedyAlgo \space algorithm. As first improvement a partial PMF construction runs in a lazy manner, which is introduced in Section \ref{sec:lazy}. Section \ref{sec:lookahead} explains second proposal about searching merging sequences from current pair in the latest stages. Last suggestion optimize the comparing constructed BFS tree of PMF and set of current pair.  
+\greedyAlgo \space Algorithm has two main phases: PMF construction and reset word generation via merging sequences. The observations from Section \ref{sec:greedy-analysis} shows that first phase dominates the execution time of the algorithm. However, second phase does not use all merging sequences to construct reset word. Therefore the second phase can use a partial PMF and we propose three algorithmic enhancement for \greedyAlgo \space Algorithm. As first improvement a partial PMF construction runs in a lazy manner, which is introduced in Section \ref{sec:lazy}. Section \ref{sec:lookahead} explains second proposal about searching merging sequences from current pair in the latest stages. Last suggestion optimize the comparing constructed BFS tree of PMF and set of current pair.  
 
 \subsection{Lazy PMF Construction}
 \label{sec:lazy}
 
-
-\begin{algorithm}[ht]
+As the first improvement, we combined the two phases. Algorithm \ref{algo:greedy-lazy} searches the shortest merging sequence in PMF which is also the shortest merging sequence of a pair in current set. The \greedyAlgo Algorithm uses partial PMF which initially has singletons. At each iteration PMF is computed when it is needed. At each iteration, the algorithm checks all pairs from current set to find the shortest merging sequence. If it cannot find the merging sequence then PMF construction phase is executed. It computes until a pair from current set is found. Note that BFS algorithm is used for PMF construction, hence the length of not computed merging sequences cannot be shorter than any other computed merging sequence in PMF.
+ 
+\begin{algorithm}[ht]	
 	\label{algo:greedy-lazy}
-	\caption{Eppstein's \greedyAlgo \space Algorithm with Lazy PMF Construction}
-	
+	\caption{\greedyAlgo \space Algorithm with lazy PMF construction}
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
 	\Input{An automaton $A=(S,\Sigma,\delta)$}
-	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
-	
-	%{--- Phase 1 ---}
-	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
-	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
-	{
-		report that $A$ is not synchronizable and exit;	
-	}
-
-	
-	%{--- Phase 2 ---}
+	\Output{A synchronizing word $\Gamma$ for $A$}
+	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
+	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
+	$Q \longleftarrow \{ \langle s,s\rangle | s \in S \}$; \tcp{Q is a queue which will store unprocessed pair from frontier set and found pair from next frontier set.}
 	$C = S$; \tcp{$C$ will keep track of the current set of states}
 	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
-	
-	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
+	\While{$|C| > 1$}	
 	{
+		\While{$\forall \langle s_i,s_j \rangle \in C^{\langle 2 \rangle}: \tau(\langle s_i,s_j \rangle)$ is undefined}
+		{
+			$\langle s_i, s_j \rangle = $ dequeue the next item from $Q$;\\
+			\ForEach{$x \in \Sigma$}
+			{
+				\ForEach{$\langle s_k, s_\ell \rangle \in \delta^{-1}(\langle i,j \rangle,x)$}
+				{
+					\If{$\tau(\langle s_k, s_\ell \rangle)$ is undefined}
+					{
+						$\tau(\langle s_k, s_\ell \rangle) = x \; \tau(\langle s_i, s_j\rangle)$;\\
+						enqueue $\langle s_k,s_\ell \rangle$ onto $Q$;\\
+					}
+				}
+			} 		
+		}
 		find a pair $\langle s_i,s_j \rangle \in C^{\langle 2 \rangle}$ 
 		with minimum $|\tau(\langle s_i,s_j \rangle)|$ among all pairs 
 		in $C^{\langle 2 \rangle}$;\\
-		
-		
-		$\Gamma = \Gamma \; \tau(\langle s_i,s_j \rangle)$;\\
-		$C = \delta(C,\tau(\langle s_i,s_j \rangle))$;
+		$\Gamma = \Gamma \; \tau(\langle s_i, s_j\rangle)$;\\
+		$C = \delta(C,\tau_{\langle i,j\rangle})$;
 	}
 \end{algorithm}
 
-
+Algorithm \ref{algo:greedy-lazy} has same upper bound compared to algorithm \ref{algo:greedy}. For line 7-13, the time complexity depends on the number of edges, $O(pn^2)$. The number of iteration does not effect the upper bound of Line 7-13. Also there is no lower bound for PMF construction part. Picking the shortest merging sequence (Line 14-16) is same as in Algorithm \ref{algo:greedy}, so the the complexity is also same, which is $O(n^4)$ and $\Omega(n)$. Thus the upper bound does not change but the lower bound decreases.
 
 \subsection{Looking Ahead From Current Pair}
 \label{sec:lookahead}
+
+
 
 \subsection{Speeding up the Fastest}
 \label{sec:smart}
