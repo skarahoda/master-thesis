@@ -278,7 +278,7 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 
 \begin{algorithm}[ht]
 	\label{algo:greedy}
-	\caption{Eppstein's \textsc{Greedy} Algorithm}
+	\caption{Eppstein's \greedyAlgo \space Algorithm}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
 	\Input{An automaton $A=(S,\Sigma,\delta)$}
@@ -521,7 +521,7 @@ The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite
 \subsection{GPU Parallelization}
 \label{sec:BFS-GPU}
 \comment{sertac}{intro olarak GPU mimariden burada mi bahsetmeli?}
-In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different parallel algorithms are suggested. In both Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses local sets. At the end of iteration, the algorithm merges the local sets to construct the global one. Since GPUs have planty threads, It can be costly to merge enormous number of local set. In addition, GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create significant number of duplicate pair. Therefore, we use another approach to take out local set mechanism. \comment{sertac}{bu konuda birilerine cite etmek gerekebilir. Daha once benzer isi yapmis olan paperlar konulabilir. Paper bulmam lazim.} In the new approach, we called S2R and S2F, the algorithm process from $S^{\langle 2 \rangle}$, instead of $R$ or $F$.
+In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different parallel algorithms are suggested. In both Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses local sets. At the end of iteration, the algorithm merges the local sets to construct the global one. Since GPUs have planty threads, It can be costly to merge enormous number of local set. In addition, GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create significant number of duplicate pair. Therefore, we use another approach to take out local set mechanism. \comment{sertac}{bu konuda birilerine cite etmek gerekebilir. Daha once benzer isi yapmis olan paperlar konulabilir. Paper bulmam lazim.} For GPU parallelization, the algorithm, we called S2R and S2F, process from $S^{\langle 2 \rangle}$, instead of $R$ or $F$.
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-step-S2R-Parallel}
@@ -572,12 +572,57 @@ In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different pa
 			}
 		}
 \end{algorithm}
+
 \clearpage
 \section{Speeding up the Fastest}
 \label{sec:speedup}
 \comment{sertac}{Makalenin ismi guzel oldugu icin onu yazdim ama baska isim koymak gerekir mi emin olamadim.}
 
+\greedyAlgo \space algorithm has two main phases: PMF construction and reset word generation via merging sequences. The observations from Section \ref{sec:greedy-analysis} shows that first phase dominates the execution time of the algorithm. However, second phase does not use all merging sequences to construct reset word. Therefore the second phase can use a partial PMF and we propose three algorithmic enhancement for \greedyAlgo \space algorithm. As first improvement a partial PMF construction runs in a lazy manner, which is introduced in Section \ref{sec:lazy}. Section \ref{sec:lookahead} explains second proposal about searching merging sequences from current pair in the latest stages. Last suggestion optimize the comparing constructed BFS tree of PMF and set of current pair.  
 
+\subsection{Lazy PMF Construction}
+\label{sec:lazy}
+
+
+\begin{algorithm}[ht]
+	\label{algo:greedy-lazy}
+	\caption{Eppstein's \greedyAlgo \space Algorithm with Lazy PMF Construction}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
+	
+	%{--- Phase 1 ---}
+	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
+	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
+	{
+		report that $A$ is not synchronizable and exit;	
+	}
+
+	
+	%{--- Phase 2 ---}
+	$C = S$; \tcp{$C$ will keep track of the current set of states}
+	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
+	
+	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
+	{
+		find a pair $\langle s_i,s_j \rangle \in C^{\langle 2 \rangle}$ 
+		with minimum $|\tau(\langle s_i,s_j \rangle)|$ among all pairs 
+		in $C^{\langle 2 \rangle}$;\\
+		
+		
+		$\Gamma = \Gamma \; \tau(\langle s_i,s_j \rangle)$;\\
+		$C = \delta(C,\tau(\langle s_i,s_j \rangle))$;
+	}
+\end{algorithm}
+
+
+
+\subsection{Looking Ahead From Current Pair}
+\label{sec:lookahead}
+
+\subsection{Speeding up the Fastest}
+\label{sec:smart}
 
 \clearpage
 \section{Conclusion and Future Works}
