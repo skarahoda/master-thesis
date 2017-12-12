@@ -4,6 +4,7 @@
 \usepackage{pstricks}
 \usepackage{pst-node}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{authoraftertitle}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
@@ -183,12 +184,12 @@ $ $
 \label{sec:Preliminaries}
 FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transition function without an output.
 
-When an {\em automaton} is complete and deterministic, it is defined by a triple $A=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton $A$ is at a state $s$ and if an input $x$ is applied, then $A$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton $A$ with 4 states and 2 inputs using graphical notation.\looseness=-1
+When an {\em automaton} is complete and deterministic, it is defined by a triple ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton ${\cal A}$ with 4 states and 2 inputs using graphical notation.\looseness=-1
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.7\textwidth]{figs/inverse.pdf}
-\caption{A synchronizable automaton $A$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
+\caption{A synchronizable automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
 \label{fig:inv}
 \vspace*{-3ex}
 \end{figure}
@@ -197,9 +198,9 @@ An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simpl
 
 Inverse of the transition is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
 
-Let $A=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \langle s_i, s_j \rangle | s_i,s_j \in C \}$ be set of multisets  with cardinality 2. For $\langle s_i, s_j \rangle \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality 2. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
 
-An automata which produced from set of pairs; ${\cal A}=(S^{\langle 2 \rangle},\Sigma,\Delta)$ is called \textit{pair automata}. For pair automata, set of inputs are same and transition function is $\Delta(\langle s_i,s_j \rangle,x) = \langle \delta(s_i,x), \delta(s_j,x)\rangle$. \comment{sertac}{pair automata icin figure cizilebilir}
+An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called \textit{pair automaton}. For pair automaton, set of inputs are same and transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. \comment{sertac}{pair automata icin figure cizilebilir}
 
 Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. If $C=S$, $w$ is called \textit{reset word} of automaton and the automaton is synchronizable.
 
@@ -210,61 +211,61 @@ In this section, Eppstein's \greedyAlgo \space is introduced. After that experim
 
 \begin{proposition}
 	\label{prop:synchronizable}
-	An automaton $A=(S,\Sigma,\delta)$ is synchronizable iff for all  $s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
+	An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizable iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
 \end{proposition}
 
 The \greedyAlgo \space Algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo \space has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
 
-Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for $A$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transition function and starting from $\langle s_i, s_i \rangle$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
+Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for ${\cal A}$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transition function and starting from $\{ s_i, s_i \}$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
 
 Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set ($F$)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
 
 
 \begin{algorithm}[ht]
-	\label{algo:BFS}
 	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+	\label{algo:BFS}
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
 	\Output{A PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
 	
-	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$;\\
-	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
-	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
+	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$\;
+	\lForEach{singleton $\{ s,s \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s,s \}) = \varepsilon$}
+	\lForEach{pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s_i,s_j \}) =$ {\em undefined}}
 	
-	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$; \tcp{all singletons of $S^{\langle 2 \rangle}$}
-    $R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$; \tcp{all pairs of $S^{\langle 2 \rangle}$}
+	$F \longleftarrow \{ \{ s,s \} | s \in S \}$; \tcp{all singletons of $S^{\langle 2 \rangle}$}
+    $R \longleftarrow \{ \{ s_i, s_j \} | s_i,s_j \in S \wedge s_i \neq s_j \}$; \tcp{all pairs of $S^{\langle 2 \rangle}$}
 	\While{$R$ is not empty and $F$ is not empty}
 	{
-		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$;\\
+		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$\;
 	}
 \end{algorithm}
 
 \begin{proposition}
 	\label{prop:merging}
-	Let a pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x\;w$ is a merging sequence for the pair $\langle s_i,s_j \rangle$.
+	Let a pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x\;w$ is a merging sequence for the pair $\{s_i,s_j \}$.
 \end{proposition}
 
 Thanks to inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
 
 \begin{algorithm}[ht]
-	\label{algo:BFS-step-F2R}
 	\caption{{BFS\_step (F2R)}}
+	\label{algo:BFS-step-F2R}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
 	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
 	
-	$F' \longleftarrow \emptyset$;\\
-	\ForEach{$ \langle s_i,s_j \rangle \in F$}
+	$F' \longleftarrow \emptyset$\;
+	\ForEach{$ \{ s_i,s_j \} \in F$}
 	{
 		\ForEach{$x \in \Sigma$}
 		{
-			\ForEach{$\langle s'_i,s'_j\rangle$ such that $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			\ForEach{$\{ s'_i,s'_j\}$ such that $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
 			{
-				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau(\langle s'_i,s'_j\rangle)$ is undefined}
+				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau(\{ s'_i,s'_j\})$ is undefined}
 				{
-					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j \rangle)$;\\
-					$F' = F' \cup \{ \langle s'_i,s'_j\rangle  \} $;\\
+					$\tau(\{ s'_i,s'_j \}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
+					$F' = F' \cup \{ \{ s'_i,s'_j \}  \} $\;
 				}
 			}
 		}
@@ -272,23 +273,23 @@ Thanks to inverse of transition function and Proposition \ref{prop:merging}, Alg
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-When first phase is completed, Algorithm \ref{algo:greedy} checks the automata is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of merging sequance can be at most $n^2$; the complexity of computation line 9 is $O(n^3)$ for one iteration. Thus Phase 2 takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. The upper bounds of the phases is a sligthly different. For a synchronizable automata, first phase $\Omega(n^2)$ since it finds a merging sequence for all pairs. At best case, phase two takes a merging sequnence with length of 1, which is also reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis. 
+When first phase is completed, Algorithm \ref{algo:greedy} checks the automaton is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of merging sequance can be at most $n^2$; the complexity of computation line 9 is $O(n^3)$ for one iteration. Thus Phase 2 takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. The upper bounds of the phases is a sligthly different. For a synchronizable automaton, first phase $\Omega(n^2)$ since it finds a merging sequence for all pairs. At best case, phase two takes a merging sequnence with length of 1, which is also reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis. 
 
 \comment{sertac}{complexity $O(n^3)$ mu demeliyiz yoksa $O(n^4)$ mu? interediate phaseden bahsetmeli miyiz?}
 
 \begin{algorithm}[ht]
-	\label{algo:greedy}
 	\caption{Eppstein's \greedyAlgo \space Algorithm}
+	\label{algo:greedy}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$}
-	\Output{A reset word $\Gamma$ for $A$ (or fail if $A$ is not synchronizable)}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
+	\Output{A reset word $\Gamma$ for ${\cal A}$ (or fail if ${\cal A}$ is not synchronizable)}
 	
 	%{--- Phase 1 ---}
 	compute a PMF $\tau$ using Algorithm~\ref{algo:BFS}\;
-	\If{there exists a pair $\langle s_i,s_j \rangle$ such that  $\tau(\langle s_i,s_j \rangle)$ is undefined}
+	\If{there exists a pair $\{ s_i,s_j \}$ such that  $\tau(\{ s_i,s_j \})$ is undefined}
 	{
-		report that $A$ is not synchronizable and exit;	
+		report that ${\cal A}$ is not synchronizable and exit;	
 	}
 
 	
@@ -298,15 +299,35 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automata i
 	
 	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
 	{
-		find a pair $\langle s_i,s_j \rangle \in C^{\langle 2 \rangle}$ 
-		with minimum $|\tau(\langle s_i,s_j \rangle)|$ among all pairs 
-		in $C^{\langle 2 \rangle}$;\\
+		find a pair $\{ s_i,s_j \} \in C^{\langle 2 \rangle}$ 
+		with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs 
+		in $C^{\langle 2 \rangle}$\;
 		
 		
-		$\Gamma = \Gamma \; \tau(\langle s_i,s_j \rangle)$;\\
-		$C = \delta(C,\tau(\langle s_i,s_j \rangle))$;
+		$\Gamma = \Gamma \; \tau(\{ s_i,s_j \})$\;
+		$C = \delta(C,\tau(\{ s_i,s_j \}))$;
 	}
 \end{algorithm}
+
+
+\begin{algorithm}[ht]
+	\caption{Find\_Min}
+	\label{algo:find-min}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{Current set of state $C$ and the PMF function $\tau$}
+	\Output{A pair of state $\{ s_i,s_j \}$ with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs in $C^{\langle 2 \rangle}$}
+	
+	$\{ s_i,s_j \} =$ undefined\;
+	\ForEach{$ \{ s_k,s_\ell \} \in C^{\langle 2 \rangle}$}
+	{
+		\If{$\{ s_i,s_j \}$ is undefined or $|\tau(\{ s_k,s_\ell \})| < |\tau(\{ s_i,s_j \})|$}
+		{
+			$\{ s_i,s_j \} = \{ s_k, s_\ell \}$
+		}
+	}
+\end{algorithm}
+
 
 
 \subsection{Analysis on \greedyAlgo}
@@ -335,7 +356,7 @@ In Section \ref{sec:greedy}, \greedyAlgo \space Algorithm introduced and its two
 
 \comment{sertac}{Phase 2 kac iteration oldu deneyi eklenebilir}
 
-To understand the behavior of the algorithm, we extend our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, we take the length of merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence.For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation, Phase 2 tends to pick smaller length of merging sequences. For example, when we take automata with 8000 states and 2 letters, The longest merging sequence in PMF has length 16.9 and Phase uses only merging sequences with length 12.1 and less, on average. It means merging sequences of almost \%30 of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
+To understand the behavior of the algorithm, we extend our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, we take the length of merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence.For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation, Phase 2 tends to pick smaller length of merging sequences. For example, when we take am automaton with 8000 states and 2 letters, The longest merging sequence in PMF has length 16.9 and Phase uses only merging sequences with length 12.1 and less, on average. It means merging sequences of almost \%30 of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
 
 \begin{table}[ht]
 \center
@@ -370,6 +391,8 @@ p &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}$ &  $h_{PMF}$ &  $h_{max}$ &  $h_{mean}
 
 With the help of experiments, we observe that execution time of PMF construction phase dominates \greedyAlgo \space Algorithm. We also notice that all information from first phase is not used in second phase. Therefore we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. Also some algorithmic improvements to prevent unnecessary computations in first phase are introduced in Section \ref{sec:speedup}.
 
+
+%%%%%%%%%%%%% PARALLEL %%%%%%%%%%%%%%  
 \clearpage
 \section{Parallelization on \greedyAlgo}
 \label{sec:parallel}
@@ -386,73 +409,73 @@ Algorithm \ref{algo:BFS} is a BFS algorithm which starts from singletons and sea
 While finding pair from $k^{th}$ level (setting $k^{th}$ level as next frontier set $F'$) the algorithm have to ensure that all pairs from $k-1^{st}$ level are found. Likewise, the algorithm shall process all pairs from $i^{th}$ level(using $i^{th}$ level as frontier set $F$) before process a pair from $i+1^{st}$ level. Since sequential algorithm for PMF construction process one pair at a time, a simple queue is enough to schedule processing of pairs. The algorithm stores singletons, level 0 nodes and picks the next processed node from the beginning of the queue. When a new pair is found, the algorithm pushes the pair at the end of queue. Using queue is a flawless method to maintain the dependency between tasks. Implementing parallel version of the algorithm is not easy as sequential version. Each thread shall process pairs from same level to preserve task dependency. Using queue is not enough and a barrier mechanism is needed.
 
 \begin{algorithm}[ht]
-	\label{algo:BFS-step-F2R-Parallel}
 	\caption{BFS\_step\_F2R (in parallel)}
+	\label{algo:BFS-step-F2R-Parallel}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
 	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
 	
 	\lForEach{thread $t$}{
 		$F'_t \longleftarrow \emptyset$
 	}
-	\ForEachP{$\langle s_i,s_j\rangle \in F$}
+	\ForEachP{$\{ s_i,s_j\} \in F$}
 	{
 		\ForEach{$x \in \Sigma$}
 		{
-			\ForEach{$\langle s'_i,s'_j\rangle$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			\ForEach{$\{ s'_i,s'_j\}$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
 			{
-				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau({\langle s'_i,s'_j\rangle})$ is undefined}
+				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau({\{ s'_i,s'_j \}})$ is undefined}
 				{
-					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j\rangle )$;\\
-					$F'_t = F'_t \cup \{ \langle s'_i,s'_j \rangle  \} $;\\
+					$\tau(\{ s'_i,s'_j\}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
+					$F'_t = F'_t \cup \{ \{ s'_i,s'_j \}  \} $\;
 				}
 			}
 		}
 	}
-	$F' \longleftarrow \emptyset$;\\
+	$F' \longleftarrow \emptyset$\;
 	\lForEach{thread t}{
 		$F' = F' \cup F'_t$
 	}
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$ and $F'$. Threads partition all pairs in $F$. When the algorithm finds a new pair, it pushes to new frontier set. Since pushing an item to a set is not atomic operation, we also change the process of pushing a pair to the next frontier set. The easiest way is putting the operation to a critical region. However this is not a time efficient method. So we implement a lock-free mechanism, instead of global $F'$, each thread stores a local $F'$. When all pairs from $F$ are processed, a thread(master thread) merges local $F'$s in a sequential manner. Lock free mechanism comes with a drawback. When two threads find same pair $\langle s'_i,s'_j\rangle$, at line 6 of Algorithm \ref{algo:BFS-step-F2R-Parallel}, at the same time, then both of them pushes the same pair to $F'$ and duplicate data is occurred. In CPU parallelization, our experimental observations shows that at most thousandth of $|F'|$ pairs are duplicate. Since duplicate pair does not effect the correctness of the algorithm, we avoid the time cost of eliminating duplicate pair by using processing extra pair whose time cost is negligible compered to earlier. Except the redundant computation, duplicate pair is also obstacle to implement $R'$ (line 8). In parallel implementation, Algorithm  \ref{algo:BFS} can check only $F$ (line 5).  
+In implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel}, we separate $F$ and $F'$. Threads partition all pairs in $F$. When the algorithm finds a new pair, it pushes to new frontier set. Since pushing an item to a set is not atomic operation, we also change the process of pushing a pair to the next frontier set. The easiest way is putting the operation to a critical region. However this is not a time efficient method. So we implement a lock-free mechanism, instead of global $F'$, each thread stores a local $F'$. When all pairs from $F$ are processed, a thread(master thread) merges local $F'$s in a sequential manner. Lock free mechanism comes with a drawback. When two threads find same pair $\{ s'_i,s'_j\}$, at line 6 of Algorithm \ref{algo:BFS-step-F2R-Parallel}, at the same time, then both of them pushes the same pair to $F'$ and duplicate data is occurred. In CPU parallelization, our experimental observations shows that at most thousandth of $|F'|$ pairs are duplicate. Since duplicate pair does not effect the correctness of the algorithm, we avoid the time cost of eliminating duplicate pair by using processing extra pair whose time cost is negligible compered to earlier. Except the redundant computation, duplicate pair is also obstacle to implement $R'$ (line 8). In parallel implementation, Algorithm  \ref{algo:BFS} can check only $F$ (line 5).  
 
 \subsection{Remaining to Frontier}
 \label{sec:BFS-R2F-parallel}
 
-Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref{algo:BFS-step-F2R} and \ref{algo:BFS-step-F2R-Parallel}, is most natural and common way for a BFS algorithm. Another approach is processing the remaining set $R$, to find $F'$, we called as \textit{remaining to frontier (R2F)}. The main difference R2F uses transition function $\delta$ as edges, compared to F2R uses $\delta^{-1}$. Thanks to Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-R2F-Parallel} searches all pairs $\langle s_i,s_j\rangle \in R$ and applies all possible letters $x \in \Sigma$. If the algorithm finds a merging sequence $\delta(\langle s_i,s_j\rangle, x) = w$ (lines 4-6), then it sets $\tau = (\langle s_i,s_j\rangle) = x \; w$ (lines 7-9), otherwise the pair remains in the next remaining set $R'$ (lines 10, 11). Like in Algorithm \ref{algo:BFS-step-F2R-Parallel}, Algorithm \ref{algo:BFS-step-R2F-Parallel} also uses local sets. Each thread $t$ uses own local the next remaining set $R'_t$ for lock-free parallelization. Note that, each thread process different pair $\langle s_i,s_j\rangle$, hence there is no duplicate pair in $R'$; Algorithm \ref{algo:BFS} can uses $R$ and the algorithm iterates one less compared to F2R. However R2F algorithm process a pair at each iteration until merging sequence of that pair is found.
+Processing the frontier set $F$ to set the next frontier set $F'$ , like in \ref{algo:BFS-step-F2R} and \ref{algo:BFS-step-F2R-Parallel}, is most natural and common way for a BFS algorithm. Another approach is processing the remaining set $R$, to find $F'$, we called as \textit{remaining to frontier (R2F)}. The main difference R2F uses transition function $\delta$ as edges, compared to F2R uses $\delta^{-1}$. Thanks to Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-R2F-Parallel} searches all pairs $\{ s_i,s_j \}\in R$ and applies all possible letters $x \in \Sigma$. If the algorithm finds a merging sequence $\delta(\{ s_i,s_j \}, x) = w$ (lines 4-6), then it sets $\tau(\{ s_i,s_j \}) = x \; w$ (lines 7-9), otherwise the pair remains in the next remaining set $R'$ (lines 10, 11). Like in Algorithm \ref{algo:BFS-step-F2R-Parallel}, Algorithm \ref{algo:BFS-step-R2F-Parallel} also uses local sets. Each thread $t$ uses own local the next remaining set $R'_t$ for lock-free parallelization. Note that, each thread process different pair $\{ s_i,s_j \}$, hence there is no duplicate pair in $R'$; Algorithm \ref{algo:BFS} can uses $R$ and the algorithm iterates one less compared to F2R. However R2F algorithm process a pair at each iteration until merging sequence of that pair is found.
 
 \begin{algorithm}[ht]
-	\label{algo:BFS-step-R2F-Parallel}
 	\caption{BFS\_step\_R2F (in parallel)}
+	\label{algo:BFS-step-R2F-Parallel}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
 	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
 	
 		\lForEach{thread t}{$R'_t \longleftarrow \emptyset$}
-		\ForEachP{$\langle s_i,s_j\rangle \in R$}
+		\ForEachP{$\{ s_i,s_j \} \in R$}
 		{
-			$connected  \longleftarrow $ {\bf false};\\
+			$connected  \longleftarrow $ {\bf false}\;
 			\ForEach{$x \in \Sigma$}
 			{
-				$\langle s'_i, s'_j \rangle \longleftarrow \langle \delta(s_i,x),\delta(s_j,x) \rangle$; \\ 
+				$\{ s'_i, s'_j \}\longleftarrow \{ \delta(s_i,x),\delta(s_j,x) \}$; \\ 
 
-				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in F$}){$\tau(\langle s'_i, s'_j\rangle)$ is defined}
+				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in F$}){$\tau(\{ s'_i, s'_j \})$ is defined}
 				{
-					$\tau(\langle s_i, s_j\rangle) \longleftarrow x \tau(\langle s'_i, s'_j\rangle)$;\\
-					$connected  \longleftarrow $ {\bf true};\\
-					{\bf break};\\
+					$\tau( \{ s_i, s_j\}) \longleftarrow x \tau(\{ s'_i, s'_j \})$\;
+					$connected  \longleftarrow $ {\bf true}\;
+					{\bf break}\;
 				}
 			}
 			\If{not $connected$}
 			{
-					$R'_t = R'_t \cup \{ \langle s_i, s_j\rangle \} $;\\
+					$R'_t = R'_t \cup \{ \{ s_i, s_j \} \} $\;
 			}
 		}
-		$R' \longleftarrow \emptyset$;\\
+		$R' \longleftarrow \emptyset$\;
 		\lForEach{thread t}{
 			$R' = R' \cup R'_t$
 		}
@@ -487,7 +510,7 @@ The cost of Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2
 \vspace*{-3ex}
 \end{figure}
 
-The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite{Beamer}. Since the algorithms check all edges, determining the cost of each iteration by the number of edge is the most precise technique like in \cite{Beamer}. On a simple graph counting the edges is an effortless operation. However in our work, the BFS algorithm is applied to pair autamton ${\cal A}$ which is not actually created. For each pair it requires $O(p)$ time to count number of edges for F2R. That means estimating the cost of F2R and R2F from edges takes $O(pn^2)$ which is the same time complexity of the BFS algorithm itself. For R2F, the number of edge per vertex is fixed to alphabet size. For F2R, the number of edge per vertex depends on the vertex. However the value is alphabet size, like in R2F, on average. Therefore assuming the number of edges approximately equals to number of vertices times alphabet size is a fine acceptance, and it is also possible to predict the costs by number of vertices.
+The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite{Beamer}. Since the algorithms check all edges, determining the cost of each iteration by the number of edge is the most precise technique like in \cite{Beamer}. On a simple graph counting the edges is an effortless operation. However in our work, the BFS algorithm is applied to pair autamton ${\cal A}^{\langle 2 \rangle}$ which is not actually created. For each pair it requires $O(p)$ time to count number of edges for F2R. That means estimating the cost of F2R and R2F from edges takes $O(pn^2)$ which is the same time complexity of the BFS algorithm itself. For R2F, the number of edge per vertex is fixed to alphabet size. For F2R, the number of edge per vertex depends on the vertex. However the value is alphabet size, like in R2F, on average. Therefore assuming the number of edges approximately equals to number of vertices times alphabet size is a fine acceptance, and it is also possible to predict the costs by number of vertices.
 
 
 
@@ -496,24 +519,24 @@ The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite
 	\caption{Computing a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$ (Hybrid)}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
 	\Output{A function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
 	
-	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$\\
-	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
-	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
+
+	\lForEach{singleton $\{ s,s \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s,s \}) = \varepsilon$}
+	\lForEach{pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$}{$\tau(\{s_i,s_j\}) =${\em undefined}}
 	
-	$F \longleftarrow \{ \langle s,s\rangle | s \in S \}$;\\
-	$R \longleftarrow \{ \langle s_i,s_j\rangle | s_i,s_j \in S \wedge s_i \neq s_j \}$;\\
+	$F \longleftarrow \{ \{ s,s \} | s \in S \}$\;
+	$R \longleftarrow \{ \{ s_i,s_j \} | s_i,s_j \in S \wedge s_i \neq s_j \}$\;
 	\While{$F$ is not empty}
 	{
 		\If{$|F| < |R|$}
 		{
-			$F,R,\tau \longleftarrow \mbox{BFS\_step\_F2R}(A,F,R,\tau)$;\\
+			$F,R,\tau \longleftarrow \mbox{BFS\_step\_F2R}(A,F,R,\tau)$\;
 		}
 		\Else
 		{
-			$F,R,\tau \longleftarrow \mbox{BFS\_step\_R2F}(A,F,R,\tau)$;\\
+			$F,R,\tau \longleftarrow \mbox{BFS\_step\_R2F}(A,F,R,\tau)$\;
 		}
 	}
 \end{algorithm}
@@ -521,26 +544,26 @@ The idea of hybrid apprach in BFS algorithm is intruduced by Beamer et al. \cite
 \subsection{GPU Parallelization}
 \label{sec:BFS-GPU}
 \comment{sertac}{intro olarak GPU mimariden burada mi bahsetmeli?}
-In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different parallel algorithms are suggested. In both Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses local sets. At the end of iteration, the algorithm merges the local sets to construct the global one. Since GPUs have planty threads, It can be costly to merge enormous number of local set. In addition, GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create significant number of duplicate pair. Therefore, we use another approach to take out local set mechanism. \comment{sertac}{bu konuda birilerine cite etmek gerekebilir. Daha once benzer isi yapmis olan paperlar konulabilir. Paper bulmam lazim.} For GPU parallelization, the algorithm, we called S2R and S2F, process from $S^{\langle 2 \rangle}$, instead of $R$ or $F$.
+In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different parallel algorithms are suggested. In both Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses local sets. At the end of iteration, the algorithm merges the local sets to construct the global one. Since GPUs have planty threads, It can be costly to merge enormous number of local set. In addition, GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create significant number of duplicate pair. Therefore, we use another approach to take out local set mechanism. For GPU parallelization, the algorithm, we called S2R and S2F, process from $S^{\langle 2 \rangle}$, instead of $R$ or $F$. 
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-step-S2R-Parallel}
 	\caption{BFS\_step\_S2R (in parallel)}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$, the frontier level $f$, $\tau$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier level $f$, $\tau$}
 	\Output{updated function $\tau$}
 	
-	\ForEachP{$\langle s_i,s_j\rangle \in S^2$}
+	\ForEachP{$\{ s_i,s_j \} \in S^2$}
 	{
-		\If{$|\tau(\langle s_i, s_j\rangle)| = f$}{
+		\If{$|\tau(\{ s_i, s_j \})| = f$}{
 		\ForEach{$x \in \Sigma$}
 		{
-			\ForEach{$\langle s'_i,s'_j\rangle$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+			\ForEach{$\{ s'_i,s'_j \}$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
 			{
-				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in R$}){$\tau({\langle s'_i,s'_j\rangle})$ is undefined}
+				\If(\tcp*[h]{$\{ s'_i,s'_j \} \in R$}){$\tau(\{ s'_i,s'_j \})$ is undefined}
 				{
-					$\tau(\langle s'_i,s'_j\rangle) \longleftarrow x \tau(\langle s_i,s_j\rangle )$;\\
+					$\tau(\{ s'_i,s'_j \}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
 				}
 			}
 		}}
@@ -553,71 +576,176 @@ In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different pa
 	\caption{BFS\_step\_S2F (in parallel)}
 	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$, $\tau$}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, $\tau$}
 	\Output{updated function $\tau$}
 	
-		\ForEachP{$\langle s_i,s_j\rangle \in S^2$}
+		\ForEachP{$\{ s_i,s_j \} \in S^2$}
 		{
-			\If{$\tau(\langle s_i, s_j\rangle)$ is undefined}{
+			\If{$\tau(\{ s_i,s_j \})$ is undefined}{
 			\ForEach{$x \in \Sigma$}
 			{
-				$\langle s'_i, s'_j \rangle \longleftarrow \langle \delta(s_i,x),\delta(s_j,x) \rangle$; \\ 
+				$\{ s'_i, s'_j \}\longleftarrow \{ \delta(s_i,x),\delta(s_j,x) \}$; \\ 
 
-				\If(\tcp*[h]{$\langle s'_i,s'_j\rangle \in F$}){$\tau(\langle s'_i, s'_j\rangle)$ is defined}
+				\If(\tcp*[h]{$\{ s'_i,s'_j\}\in F$}){$\tau(\{ s'_i, s'_j \})$ is defined}
 				{
-					$\tau(\langle s_i, s_j\rangle) \longleftarrow x \tau(\langle s'_i, s'_j\rangle)$;\\
-					{\bf break};\\
+					$\tau(\{ s_i, s_j \}) \longleftarrow x \tau(\{ s'_i, s'_j \})$\;
+					{\bf break}\;
 				}
 			}
 			}
 		}
 \end{algorithm}
 
+
+\subsection{Parallelization of Second Phase}
+\label{sec:second-phase-parallelization}
+
+As Table \ref{table:phase-comparison} shows, execution time of second phase is negligible for random automata. However, it is not the case for slowly synchronizing automata. Our experiments show that execution time for phase two dominates the overall time for Cerny automata. Hence, parallelization of first phase does not give observable speedups for slowly synchronizing automata. In this section the observations of second phase and the algorithm for parallelization is introduced.
+
+Second phase of the algorithm has two major sub phases: finding a pair with minimum length of merging sequence (Algorithm \ref{algo:find-min}) and applying the found sequences to current set of states. The algorithm applies these two sub phases until the current set of state is singleton. To observe behavior of the second phase, we extend our experiment and observe the execution time of finding the pair and applying the sequence. Since the execution time of second phase for random automata is less than 1 second, only cerny automata is used as experiment set. For the experiment, we used cerny automata for each $n \in \{2000, 4000, 8000\}$ states. To achieve confidential results, each cases are executed 100 times. Table \ref{table:second-phase-detail} shows the average of the experiment results.
+
+
+\begin{table}[ht]
+	\begin{center}
+	\scalebox{0.8}{
+		\begin{tabular}{r|rrr|rrr|rrr}
+		&\multicolumn{3}{|c}{$n = 2000$}&\multicolumn{3}{|c}{$n = 4000$}&\multicolumn{3}{|c}{$n = 8000$}\\
+		$p$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$\\\hline
+		\end{tabular}
+		}
+	\end{center}
+	\caption{\comment{sertac}{second phase deneyleri}}
+	\label{table:second-phase-detail}
+\end{table}
+
+Table \ref{table:second-phase-detail} shows that Algorithm \ref{algo:find-min} dominates the execution time of the \greedyAlgo\ Algorithm. Since the algorithm is simple, the parallelization is also simple. The algorithm distributes the set $C^{\langle 2 \rangle}$ to threads, each thread finds a local minimum and then the algorithm merges local minimums to find global minimum.
+
+
+
+\begin{algorithm}[ht]
+	\caption{Find\_Min (in parallel)}
+	\label{algo:find-min-parallel}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\Input{Current set of state $C$ and the PMF function $\tau$}
+	\Output{A pair of state $\{ s_i,s_j \}$ with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs in $C^{\langle 2 \rangle}$}
+	\lForEach{thread t}
+	{
+	$\{ s_{i_t},s_{j_t} \} =$ undefined
+	}
+	\ForEachP{$ \{ s_k,s_\ell \} \in C^{\langle 2 \rangle}$}
+	{
+		\If{$\{ s_{i_t},s_{j_t} \}$ is undefined or $|\tau(\{ s_k,s_\ell \})| < |\tau(\{ s_{i_t},s_{j_t} \})|$}
+		{
+			$\{ s_{i_t},s_{j_t} \} = \{ s_k, s_\ell \}$
+		}
+	}
+	$\{ s_i,s_j \} =$ undefined\;
+	\ForEach{thread t}
+	{
+		\If{$\{ s_i,s_j \}$ is undefined or $|\tau(\{ s_{i_t},s_{j_t} \})| < |\tau(\{ s_i,s_j \})|$}
+		{
+			$\{ s_i,s_j \} = \{ s_{i_t},s_{j_t} \}$
+		}
+	}
+\end{algorithm}
+
+\subsection{Implementation details}\label{subsec:imp}
+\comment{sertac}{kopyala yapistir oldu burasi}
+To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality.\looseness=-1
+
+
+
+The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all the algorithms in the paper uses it and this improvement will not have change their relative performance.\looseness=-1 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{figs/memory.pdf}
+	\caption{Indexing and placement of the state pair arrays. A simple placement of the pairs (on the left) uses redundant places for state pairs $\{s_i, s_j\}$, $i \neq j$, e.g., $\{s_1, s_2\}$ and $\{s_2, s_1\}$ in the figure. On the right, the indexing mechanism we used is shown.}
+	\label{fig:mem}
+	\vspace*{-3ex}
+\end{figure}
+
+At the hardware level, a CUDA capable GPU processor is a collection of
+\textit{multiprocessors} (SMX), each having a number of
+\textit{processors}.  Each multiprocessor has its own shared memory
+which is common to all its processors.  It also has a set of
+registers, texture memory (a read only memory for the GPU), and
+constant (a read only memory for the GPU that has the lowest access
+latency) memory caches.  In any given cycle, each processor in the
+multiprocessor executes the same instruction on different data.
+Communication between multiprocessors can be achieved through the
+\textit{global device memory}, which is available to all the
+processors in all multiprocessors~\cite{nvidia}.
+
+In the software level, the CUDA model is a collection of threads
+running in parallel.  The programmer decides on the number of threads
+to be launched.  A collection of threads, called a \textit{warp},
+running simultaneously (on a multiprocessor).  If the number of
+threads is more than the warp size then these threads are time-shared
+internally on the multiprocessor.  At a given time, a \textit{block}
+of threads runs on a multiprocessor.  Therefore a threads in block may
+have bundled into several number of warps.  Each thread executes a
+piece of code called a \textit{kernel}.  The kernel is the core code
+to be executed on a multiprocessor.  During its execution, a thread
+$t_i$ is given a unique ID and during execution thread $t_i$ can
+access data residing in the GPU by using its ID.  Since the GPU memory
+is available to all the threads, a thread can access any memory
+location.  During GPU computation the CPU can continue to operate.
+Therefore the CUDA programming model is a hybrid computing model in
+which a GPU is referred as a co-processor (\textit{device}) for the
+CPU (\textit{host}).
+
+Due to architecture of GPU, algorithms that require less synchronization are more efficient. Since the number of threads too high, creating frontier and remaining sets is an inefficient operation. Therefore we implemented S2R and S2F algorithms. For CUDA version, each thread checks only one pair. To match pairs and threads, memory indexing formula is used.  requires synchronization to find global minimum. 
+
+For CUDA implementation of Algorithm \ref{algo:find-min-parallel} we used constant amount of threads. Each threads uses memory indexing formula to check pairs and finds the local minimum, like in S2R and S2F. When threads finds the local minimum it uses {\tt atomicMin} operation instead of sequential synchronization.
+
+%%%%%% SPEEDING UP THE FASTEST %%%%%% 
 \clearpage
 \section{Speeding up the Fastest}
 \label{sec:speedup}
-\comment{sertac}{Makalenin ismi guzel oldugu icin onu yazdim ama baska isim koymak gerekir mi emin olamadim.}
 
 \greedyAlgo \space Algorithm has two main phases: PMF construction and reset word generation via merging sequences. The observations from Section \ref{sec:greedy-analysis} shows that first phase dominates the execution time of the algorithm. However, second phase does not use all merging sequences to construct reset word. Therefore the second phase can use a partial PMF and we propose three algorithmic enhancement for \greedyAlgo \space Algorithm. As first improvement a partial PMF construction runs in a lazy manner, which is introduced in Section \ref{sec:lazy}. Section \ref{sec:lookahead} explains second proposal about searching merging sequences from current pair in the latest stages. Last suggestion optimize the comparing constructed BFS tree of PMF and set of current pair.  
 
 \subsection{Lazy PMF Construction}
 \label{sec:lazy}
 
-As the first improvement, we combined the two phases. Algorithm \ref{algo:greedy-lazy} searches the shortest merging sequence in PMF which is also the shortest merging sequence of a pair in current set. The \greedyAlgo Algorithm uses partial PMF which initially has singletons. At each iteration PMF is computed when it is needed. At each iteration, the algorithm checks all pairs from current set to find the shortest merging sequence. If it cannot find the merging sequence then PMF construction phase is executed. It computes until a pair from current set is found. Note that BFS algorithm is used for PMF construction, hence the length of not computed merging sequences cannot be shorter than any other computed merging sequence in PMF.
+\greedyAlgo~algorithm uses PMF to pick shortest merging sequence among active pairs. However, Table \ref{table:levels} shows that the algorithm does not need to construct all PMF. It is redundant to compute the merging sequences whose length is bigger than $h_{max}$. As the first improvement, we generate PMF in a lazy way and combine the two phases. Algorithm \ref{algo:greedy-lazy} searches the shortest merging sequence in PMF which is also the shortest merging sequence of a pair in current set. The \greedyAlgo~algorithm uses partial PMF which initially has singletons. At each iteration PMF is computed when it is needed. The algorithm checks all pairs from current set to find the shortest merging sequence. If it cannot find the merging sequence then PMF construction phase is executed. It computes until a pair from current set is found. After that it applies the merging sequence to all active pairs and process the next iteration. Note that BFS algorithm is used for PMF construction, hence the length of not computed merging sequences cannot be shorter than any other computed merging sequence in PMF.
  
 \begin{algorithm}[ht]	
-	\label{algo:greedy-lazy}
 	\caption{\greedyAlgo \space Algorithm with lazy PMF construction}
+	\label{algo:greedy-lazy}
+	
 	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton $A=(S,\Sigma,\delta)$}
-	\Output{A synchronizing word $\Gamma$ for $A$}
-	\lForEach{singleton $\langle s,s \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s,s \rangle) = \varepsilon$}
-	\lForEach{pair $\langle s_i,s_j \rangle \in S^{\langle 2 \rangle}$}{$\tau(\langle s_i,s_j \rangle) = \mbox{\em undefined}$}
-	$Q \longleftarrow \{ \langle s,s\rangle | s \in S \}$; \tcp{Q is a queue which will store unprocessed pair from frontier set and found pair from next frontier set.}
+	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
+	\Output{A synchronizing word $\Gamma$ for ${\cal A}$}
+	\lForEach{singleton $\{ s,s \} \in S^{\langle 2 \rangle}$}{$\tau(\{s,s\}) = \varepsilon$}
+	\lForEach{pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s_i,s_j \})${\em undefined}}
+	$Q \longleftarrow \{ \{ s,s \}| s \in S \}$; \tcp{Q is a queue which will store unprocessed pair from frontier set and found pair from next frontier set.}
 	$C = S$; \tcp{$C$ will keep track of the current set of states}
 	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
 	\While{$|C| > 1$}	
 	{
-		\While{$\forall \langle s_i,s_j \rangle \in C^{\langle 2 \rangle}: \tau(\langle s_i,s_j \rangle)$ is undefined}
+		\While{$\forall \{ s_i,s_j \} \in C^{\langle 2 \rangle}: \tau(\{ s_i,s_j \})$ is undefined}
 		{
-			$\langle s_i, s_j \rangle = $ dequeue the next item from $Q$;\\
+			$\{ s_i, s_j \} = $ dequeue the next item from $Q$\;
 			\ForEach{$x \in \Sigma$}
 			{
-				\ForEach{$\langle s_k, s_\ell \rangle \in \delta^{-1}(\langle i,j \rangle,x)$}
+				\ForEach{$\{ s_k, s_\ell \} \in \delta^{-1}(\{ s_i, s_j \},x)$}
 				{
-					\If{$\tau(\langle s_k, s_\ell \rangle)$ is undefined}
+					\If{$\tau(\{ s_k, s_\ell \})$ is undefined}
 					{
-						$\tau(\langle s_k, s_\ell \rangle) = x \; \tau(\langle s_i, s_j\rangle)$;\\
-						enqueue $\langle s_k,s_\ell \rangle$ onto $Q$;\\
+						$\tau(\{ s_k, s_\ell \}) = x \; \tau(\{ s_i, s_j\})$\;
+						enqueue $\{ s_k,s_\ell \}$ onto $Q$\;
 					}
 				}
 			} 		
 		}
-		find a pair $\langle s_i,s_j \rangle \in C^{\langle 2 \rangle}$ 
-		with minimum $|\tau(\langle s_i,s_j \rangle)|$ among all pairs 
-		in $C^{\langle 2 \rangle}$;\\
-		$\Gamma = \Gamma \; \tau(\langle s_i, s_j\rangle)$;\\
-		$C = \delta(C,\tau_{\langle i,j\rangle})$;
+		find a pair $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$ 
+		with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs 
+		in $C^{\langle 2 \rangle}$\;
+		$\Gamma = \Gamma \; \tau(\{ s_i, s_j \})$\;
+		$C = \delta(C,\tau(\{ s_i,s_j\}))$;
 	}
 \end{algorithm}
 
@@ -626,10 +754,100 @@ Algorithm \ref{algo:greedy-lazy} has same upper bound compared to algorithm \ref
 \subsection{Looking Ahead From Current Pair}
 \label{sec:lookahead}
 
+As noted in Section \ref{sec:lazy}, \greedyAlgo~algorithm does not need a full constructed PMF to find a short synchronizing sequence. Table \ref{table:levels} also shows that the length average of selected merging sequences is less than 2. That means for the most iteration, the algorithm picks the merging sequence with the length of 1. The algorithm occasionally picks a merging sequence with longer length, like $h_{max}$. So Algorithm \ref{algo:greedy-lazy} have to construct PMF upto $h_{max}$ for only occasional cases. In this section, \textit{lookahead} approach is introduced to avoid constructing deep levels of PMF. 
+
+\begin{algorithm}[H]
+	\label{algo:lookahead}
+	\footnotesize
+	\caption{\small{Looking ahead from $C^2_d$}}
+	
+	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+	\SetVlineSkip{0.1em}
+	\setcounter{AlgoLine}{5}
+	\nlset{$\mathbf{1..6}$} $\ldots$ \tcp{same as Algorithm~\ref{algo:greedy-lazy}} 
+	\While{$|C| > 1$}	{
+		\If{$\forall \{ s_i,s_j \} \in C^{\langle 2 \rangle}: \tau(\{ s_i,s_j \})$ is undefined} {
+		\If{$|C| < $\sc{MaxStates}} {
+			let $Q_L = C^{\langle 2 \rangle}$ and $Q_{L_2} = \emptyset$ be two queues\;	
+			$q_{min} = \min_{\{ s_i, s_j \} \in Q} |\tau(\{ s_i, s_j \})|$; \\
+			$cnt = 0$\;
+			 $\{ s_{k'},s_{\ell'}\}=$  {\em undefined}\;
+			 $\{ s_{k'_{root}},s_{\ell'_{root}}\}=$  {\em undefined}\;
+			\lForEach{$\{ s_i, s_j \} \in S^{\langle 2 \rangle}$}{ $\sigma(\{ s_i, s_j \})  =$ {\em undefined}}
+			\lForEach{$\{ s_i, s_j \} \in C^{\langle 2 \rangle}$}{$\sigma(\{ s_i, s_j \}) = \varepsilon$ and ${\{ s_{i_{root}},s_{j_{root}}\}}=\{s_i, s_j\}$}
+			\While{$Q_L$ is not empty}{
+				$\{ s_i, s_j \} = $ pop an item from $Q_L$\;\
+				 \For{$x \in \Sigma$} { 
+					$\{ s_k, s_\ell \}$ = $\{ \delta(s_i,x), \delta(s_j,x)  \}$\;
+					\If{$\sigma(\{ s_k, s_\ell \})$ is undefined}{
+						push $\{ k, \ell \}$ to $Q_{L_2}$\;
+						$\sigma(\{ s_k, s_\ell \}) = x \sigma(\{ s_i, s_j \})$\;
+						${\{ s_{k_{root}}, s_{\ell_{root}} \}} = \{ s_{i_{root}}, s_{j_{root}} \}$\;
+						$cnt++$;
+					}
+					\If{$\tau(\{ s_k, s_\ell \})$ is defined and $|\tau(\{ s_k, s_\ell \})| < |\tau(\{ s_{k'}, s_{\ell'} \})|$}{
+						$\{ s_{k'}, s_{\ell'} \} = \{ s_k, s_\ell \}$	
+					}
+				}
+				\If{$Q_L$ is empty and $cnt < ${\sc MaxPairs} and $\{ s_{k'},s_{\ell'}\}$ is undefined}{
+					$Q_L = Q_{L_2}$ and $Q_{L_2} = \emptyset$;
+				}
+			}
+			\If{${\{ s_{k'},s_{\ell'}\}}$ is defined}{
+				use $\{ s_{k'_{root}},s_{\ell'_{root}}\}$ as $\{ s_i,s_j\}$ and $\sigma(\{ s_{k'}, s_{\ell'} \}) \tau(\{s_{k'},s_{\ell'} \})$ as $\tau(\{s_i,s_j \})$ for line 32-41
+			}
+		}
+        \While{$\forall \langle s_i,s_j \rangle \in C^{\langle 2 \rangle}: \tau(\{s_i,s_j \})$ is undefined} { 
+        	\setcounter{AlgoLine}{37}
+			\nlset{$\mathbf{33..38}$} $\ldots$ \tcp{same as lines 8-13 of Algo.~\ref{algo:greedy-lazy}}
+		}
+	}
+	\setcounter{AlgoLine}{40}
+	\nlset{$\mathbf{39..41}$} $\ldots$ \tcp{same as lines 14-16 of Algo.~\ref{algo:greedy-lazy}}
+}
+\end{algorithm}
+
+The lookahead approach tries to find a shortest path from $C^{\langle 2 \rangle}$ to $Q$ via $\delta$~(instead of $\delta^{-1}$). Let $\sigma_{\{  s_i, s_j \}}$ be the shortest path to $\{  s_i, s_j \}$ found by the lookahead PMF
+started from $C^{\langle 2 \rangle}$. Algorithm~\ref{algo:lookahead} and Figure~\ref{fig:lookahead} summarize the basic lookahead process. 
+
+When $\forall \langle s_i,s_j \rangle \in C^{\langle 2 \rangle}: \tau(\{s_i,s_j \})$ is undefined, if lookahead approach is applied fully and every time, it will be costly. To reduce the overhead, two constraints are defined; looking ahead is avoided when there are more than {\sc MaxStates}~(line 9)  states in $C$ and the process is allowed to traverse at most {\sc MaxPairs}~(line 16). We did not fine tune these parameters and use {\sc MaxStates} $= \log n$ and {\sc MaxPairs} $= n$. 
+
+We never reuse the lookahead paths $\sigma(\{ i, j \})$ from the previous iteration (see lines 15-16 in Algorithm~\ref{algo:lookahead}); although some bookkeeping can be applied, we forget all the lookahead information once the process ends, because we want to continue exploring the forest level-by-level in a BFS fashion to keep the paths being shortest during the course of the overall heuristic. 
 
 
-\subsection{Speeding up the Fastest}
+
+\begin{figure}[ht]
+\centering
+\includegraphics{figs/la.pdf}
+\caption{The figure summarizes the lookahead process: The BFS forest~(the top part of the figure) is being constructed via $\delta^{-1}$ in a lazy way. However, $P = \{ \{s_i, s_j \} | \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$ and $C^{\langle 2 \rangle}$ are disconnected. The process tries to find a shortest path from $C^{\langle 2 \rangle}$ to the queue $Q$~(the green colored BFS frontier). As an example, the $\sigma$ path passing through the blue $Q$ pair on the left is not the shortest one since there is a red $Q$ pair on the right which is reachable from the same purple lookahead pair. When the blue node is found, the current lookahead level (consisting of the nodes in $Q_L$) shall be completed to guarantee that the red node does (or does not) exist.\comment{sertac}{notation degisecek}}
+\label{fig:lookahead}
+\vspace*{-3ex}
+\end{figure}
+\renewcommand{\baselinestretch}{1}
+
+
+
+\subsection{A Smart Way to Find the Intersection of Active Pair and Constructed PMF}
 \label{sec:smart}
+
+In Algorithm \ref{algo:greedy-lazy} and \ref{algo:lookahead}, the heuristic frequently checks if $\forall \{ s_i,s_j \} \in C^{\langle 2 \rangle}: \tau(\{ s_i,s_j \})$ is undefined or not. Our baseline implementation always traverses the pairs in $C^{\langle 2 \rangle}$ and checks if they are in $P = \{ \{s_i, s_j \} | \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$. Although this is efficient if $|C^{\langle 2 \rangle}|$ is small, this is not the case at the early stages of the algorithm. Hence we reverse the search when $|C^{\langle 2 \rangle}| > |P|$ and traverse the pairs in $P$ and check if they are in $C^{\langle 2 \rangle}$.
+
+
+
+
+
+%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%  
+\clearpage
+\section{Experimental Results}
+\label{sec:results}
+
+All the experiments in the paper are performed on a single machine running on 64 bit CentOS 6.5 equipped with 64GB RAM and a dual-socket Intel Xeon E7-4870 v2 clocked at 2.30 GHz where each socket  has 15 cores~(30 in total). The machine also has a Nvidia K40 GPU with 12GB of global memory and 15 SMs each having 192 cores. For the multicore implementations, we used OpenMP and all the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled and GPU parallelization is achieved with CUDA. All the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled.
+
+To measure the efficiency of the proposed algorithms, we used randomly generated automatons\footnote{For each state $s$ and input $x$, $\delta(s,x)$ is randomly assigned to a state $s' \in S$.} with $n  \in \{2000, 4000, 8000\}$ states and $p \in \{2, 8, 32, 128\}$ inputs. For each $(n, p)$ pair, we randomly generated $100$ different automatons and executed each algorithm on these automatons. The values in the figures and the tables are the averages of these $100$ executions for each configuration, i.e., algorithm, $n$ and $p$. As slowly synchronizing automata, we also used Cerny automata with $n  \in \{2000, 4000, 8000\}$ states. Since there is only one automaton for each $n$, 
+
+
+
+
 
 \clearpage
 \section{Conclusion and Future Works}
