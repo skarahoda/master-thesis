@@ -75,11 +75,11 @@ Master of Science
 \vspace{2cm}
 
 \begin{center}
-Sabanci University
+Sabanc{\i} University
 \end{center}
 
 \begin{center}
-Augustus, 2017
+January, 2018
 \end{center}
 
 
@@ -90,7 +90,7 @@ $ $
 $ $
 \vspace{5cm}
 \begin{center}
-\copyright \hspace{0.1cm} \MyAuthor\space 2017
+\copyright \hspace{0.1cm} \MyAuthor\ 2018
 
 All Rights Reserved
 \thispagestyle{empty}
@@ -122,7 +122,7 @@ Keywords: ...
 
 \begin{center}
 \large
-Eppstein'\i{}n S\i{}f\i{}rlama Sezgiselinin Algoritmik Eniyilemesi ve Paralelle\c{s}tirilmesi
+Eppstein'{\i}n S{\i}f{\i}rlama Sezgiselinin Algoritmik Eniyilemesi ve Paralelle\c{s}tirilmesi
 \end{center}
 
 \begin{center}
@@ -187,9 +187,9 @@ $ $
 \clearpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
-FSMs are mathematical abstractions for of real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequence consider only destination state, the output is not in the scope of this work. Therefore, we can consider FSMs are as automata with simple transition function without an output.
+FSMs are mathematical abstractions for real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequences consider only destination state, the output is not in the scope of this work. Therefore, we can consider an FSM as an automata with a simple transition function and without an output.
 
-When an {\em automaton} is complete and deterministic, it is defined by a triple ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton ${\cal A}$ with 4 states and 2 inputs using graphical notation.
+When an {\em automaton} is complete and deterministic, it is defined by a triplet ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton ${\cal A}$ with 4 states and 2 inputs using graphical notation.
 
 \begin{figure}[ht]
 	\centering
@@ -198,31 +198,31 @@ When an {\em automaton} is complete and deterministic, it is defined by a triple
 	\label{fig:inv}
 \end{figure}
 
-An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. Transition function $\delta$ can be extended to a set of states and to a word in the usual way. With fact $\delta(s,\varepsilon)=s$, let a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, then $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, transition function is $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
+An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. The transition function $\delta$ can be extended to a set of states and to a word in the usual way. Assuming $\delta(s,\varepsilon)=s$, for a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
 
-Inverse of the transition is also a well defined function. $\delta^{-1}(s,x)$ denotes the set of those states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
+The inverse of the transition is also a well defined function; $\delta^{-1}(s,x)$ denotes the set of states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
 
-Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality 2. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality two. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
 
-An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called \textit{pair automaton}. For pair automaton, set of inputs are same and transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. \comment{sertac}{pair automata icin figure cizilebilir}
+An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called the \textit{pair automaton}. For a pair automaton, the set of inputs are the same and the transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. \comment{sertac}{pair automata icin figure cizilebilir}
 
-Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is 1 then $w$ is \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. If $C=S$, $w$ is called \textit{reset word} of automaton and the automaton is synchronizable.
+Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is one then $w$ is a \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. When $C=S$, $w$ is called a \textit{reset word} of automaton and the automaton is synchronizable.
 
 \clearpage
 \section{Eppstein's \greedyAlgo\ algorithm}
 \label{sec:greedy}
-In this section, Eppstein's \greedyAlgo\ algorithm is introduced. After that experiments and some analysis are shown. These analysis leads us to improve the speed of the algorithm.
+In this section, Eppstein's \greedyAlgo\ algorithm is introduced. After that a set of preliminary experiments and analysis are presented. These analysis leads us to improve the speed of the algorithm.
 
 \begin{proposition}
 	\label{prop:synchronizable}
 	An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizable iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
 \end{proposition}
 
-The \greedyAlgo\ algorithm is one of the fastest algorithm among the reset word generating heuristics in the literature. Idea of the algorithm comes from proposition \ref{prop:synchronizable}. The algorithm uses merging sequences of pairs, in fact the shortest ones, to find a short reset word. Like most of algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo\ has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, means that the automaton is not mergeable. Otherwise, the algorithm continues with second phase.
+The \greedyAlgo\ algorithm is one of the fastest algorithms among the reset word generation heuristics in the literature. The idea of the algorithm comes from Proposition \ref{prop:synchronizable}. The algorithm uses the shortest merging sequences of pairs to find a short reset word. Like most of the algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo\ has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, it means that the automaton is not mergeable. Otherwise, the algorithm continues with the second phase.
 
-Merging sequence of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function (PMF)} for ${\cal A}$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e. $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all shortest merging sequence, breath first search algorithm can be used. By using the inverse of transition function and starting from $\{ s_i, s_i \}$ singletons, all mergeable pairs and their shortest merging sequences can be found iterative. Let $p=|\Sigma|$ and $n=|s|$, at worst case the algorithm traverse all edges, i.e. $p$ letters of each $n\cdot(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of Phase 2 is $O(pn^2)$. 
+The merging sequences of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function} (PMF) for ${\cal A}$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e., $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all the shortest merging sequences, breadth first search algorithm can be used. By using the inverse of transition function and starting from $\{ s_i, s_i \}$ singletons, all mergeable pairs and their shortest merging sequences can be found via an iterative process. Let $p=|\Sigma|$ and $n=|s|$; in worst case, the algorithm traverses all edges, i.e., $p$ letters of each $n(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of the second phase is $O(pn^2)$. 
 
-Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , which is called \textit{frontier set ($F$)}. The level of frontier set refers the length of merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are defined as root level, level 0, of BFS algorithm. \textit{Remaining set (R)} is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS} new frontier and remaining sets are computed for next level. 
+Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs, which is called \textit{frontier set} ($F$). The level of a frontier set refers the length of the corresponding merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are placed in the root level, level 0, of BFS. \textit{Remaining set} ($R$) is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS}, new frontier and remaining sets are computed for next level. 
 
 
 \begin{algorithm}[ht]
@@ -246,10 +246,10 @@ Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs , w
 
 \begin{proposition}
 	\label{prop:merging}
-	Let a pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$, when a letter $x \in \Sigma$ is applied to the pair and resulting pair has merging sequence $w \in \Sigma^*$, then $x\;w$ is a merging sequence for the pair $\{s_i,s_j \}$.
+	Let $\{ s_i,s_j \}$ be a pair in $S^{\langle 2 \rangle}$. When a letter $x \in \Sigma$ is applied to the $\{ s_i,s_j \}$, if the resulting pair has merging sequence $w \in \Sigma^*$, then $xw$ is a merging sequence for the $\{s_i,s_j \}$.
 \end{proposition}
 
-Thanks to inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} computes the new frontier set from the most recent frontier set. At line 3-4, algorithm searches pairs which can reach the pairs of frontier set by applying one letter. If the merging sequence of found pair is not defined, then the algorithm defines it. Since the algorithm finds the remaining set from the frontier set, it is called \textit{frontier to remaining (F2R)}. 
+Thanks to the inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} constructs PMF from the most recent frontier set. At line 3-4, the algorithm searches the pairs which can reach the pairs of frontier set by applying one letter. When the algorithm finds a pair whose merging sequence is not defined, it marks the pair as a pair of frontier set for the next iteration and sets the merging sequence for the pair. Since the algorithm computes the PMF of the remaining set by using the frontier set, it is called \textit{frontier to remaining} (F2R). 
 
 \begin{algorithm}[ht]
 	\caption{{BFS\_step (F2R)}}
@@ -277,9 +277,9 @@ Thanks to inverse of transition function and Proposition \ref{prop:merging}, Alg
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-When first phase is completed, Algorithm \ref{algo:greedy} checks the automaton is synchronizable or not in $O(n^2)$ (line 2,3). After that it finds reset word iterative. it initialize the \textit{set of active states (C)} as set of all states and the reset word as empty word. At each iteration it selects the shortest merging sequence of all active pairs; appends it to reset word; finally updates the set of active states with applying the selected merging sequence. This operation repeats until only one active state left. At each iteration, merging sequence is applied, so the cardinality of $C$ decreases. Therefore iteration repeats at most $n$ times. At line 7 apply minimum operation among active pairs which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of merging sequance can be at most $n^2$; the complexity of computation line 9 is $O(n^3)$ for one iteration. Thus Phase 2 takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. The upper bounds of the phases is a sligthly different. For a synchronizable automaton, first phase $\Omega(n^2)$ since it finds a merging sequence for all pairs. At best case, phase two takes a merging sequnence with length of 1, which is also reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis. 
+When the first phase is completed, Algorithm \ref{algo:greedy} checks if the automaton is synchronizable or not in $O(n^2)$ (line 2,3). Then it finds a reset word in iterative manner. It initializes the \textit{set of active states} ($C$) as the set of all states and the initial reset word as empty. At each iteration, it selects the shortest merging sequence of all active pairs, appends it to reset word, and finally updates the set of active states by applying the selected merging sequence. This operation is repeated until only one active state is left. At each iteration, the merging sequence is applied, so the cardinality of $C$ decreases. Therefore at most $n-1$ iterations are performed. At line 7, the algorithm finds the active pair with a minimum length of the merging sequence among active pairs, which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of the merging sequence can be at most $n^2$. Therefore the time complexity of line 9 is $O(n^3)$ for one iteration. Overall the second phase takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. 
 
-\comment{sertac}{intermediate phaseden bahsetmeli miyiz?}
+The upper bounds of the phases can be computed in a slightly different way. For a synchronizable automaton, first phase is $\Omega(n^2)$ since it finds a merging sequence for all pairs. At the best case, phase two takes a merging sequnence with length of one, which is also a reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of the second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. Since there is a huge gap between the time complexity of the best case and the worst case, we extended our observations with the empirical results. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
 
 \begin{algorithm}[ht]
 	\caption{Eppstein's \greedyAlgo\ algorithm}
@@ -303,9 +303,7 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automaton 
 	
 	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
 	{
-		find a pair $\{ s_i,s_j \} \in C^{\langle 2 \rangle}$ 
-		with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs 
-		in $C^{\langle 2 \rangle}$\;
+		$\{ s_i,s_j \} = Find\_Min(C, \tau)$\;
 		
 		
 		$\Gamma = \Gamma \; \tau(\{ s_i,s_j \})$\;
@@ -338,11 +336,11 @@ When first phase is completed, Algorithm \ref{algo:greedy} checks the automaton 
 \label{sec:greedy-analysis}
 
 
-In Section \ref{sec:greedy}, \greedyAlgo\ algorithm introduced and its two phase structure is explained. Complexity of PMF construction, first phase, is $O(pn^2)$ and complexity of \greedyAlgo\ is based on Phase 2 of the algorithm which has $O(n^4)$ time complexity. To analyze the algorithm, we perform experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition to these automata we also use Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. Total 1200 randomly generated automata, in Table \ref{table:phase-comparison}, shows that the opposite of complexity calculation; first phase dominates the execution time of the algorithm.
+In Section \ref{sec:greedy}, \greedyAlgo\ algorithm  is introduced and its two phases are explained. Complexity of the PMF construction, the first phase, is $O(pn^2)$. For most of the cases $p$ is too small when compared to $n$. So, the complexity of the second phase, $O(n^4)$, dominates the first phase in theory. To analyze the algorithm, we performed experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition, we also used Cerny automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states.In Table \ref{table:phase-comparison}, experiments from 1200 randomly generated automata shows that the execution time of the second phase does not dominate the overall time of the algorithm.
 
 \begin{table}[ht]
 	\center
-	\scalebox{0.8}{
+	\scalebox{0.9}{
 		\begin{tabular}{r|rrr|rrr|rrr}
 		&\multicolumn{3}{|c}{$n = 2000$}&\multicolumn{3}{|c}{$n = 4000$}&\multicolumn{3}{|c}{$n = 8000$}\\
 		$p$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$\\\hline
@@ -350,16 +348,14 @@ In Section \ref{sec:greedy}, \greedyAlgo\ algorithm introduced and its two phase
 			8		& 0.504	& 0.517	& 0.975	& 2.709		& 2.768		& 0.978	& 14.289	& 14.721	& 0.971 \\
 			32		& 2.113	& 2.126	& 0.994	& 9.925		& 9.986		& 0.994	& 51.783	& 52.233	& 0.991 \\
 			128		& 9.126	& 9.140	& 0.999	& 40.356	& 40.418	& 0.998	& 193.548	& 193.982	& 0.998 \\
-			cerny	& 0.096	& 4.836	& 0.020	& 1.026		& 42.771	& 0.024	& 5.584		& 797.692	& 0.007\\
+			cerny	& 0.096	& 4.836	& 0.020	& 1.026		& 42.771	& 0.024	& 5.584		& 797.692	& 0.007
 		\end{tabular}
 	}
 	\caption{Sequential PMF construction time ($t_{PMF}$), and overall time ($t_{ALL}$) in seconds}
 	\label{table:phase-comparison}
 \end{table}
 
-\comment{sertac}{Phase 2 kac iteration oldu deneyi eklenebilir}
-
-To understand the behavior of the algorithm, we extend our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, we take the length of merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence.For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation, Phase 2 tends to pick smaller length of merging sequences. For example, when we take am automaton with 8000 states and 2 letters, The longest merging sequence in PMF has length 16.9 and Phase uses only merging sequences with length 12.1 and less, on average. It means merging sequences of almost \%30 of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
+To understand the behavior of the algorithm, we extended our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, the length of the merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence. For instance, when automata with 8000 states and 128 letters are considered, the length of merging sequence in PMFs is at most 3, not 64000000. Another observation is that the second phase tends to pick smaller length of merging sequences. For example, when we take an automaton with 8000 states and 2 letters, the longest merging sequence in PMF has the length 16.9. Second phase uses only merging sequences with length 12.1 and less. It means merging sequences of almost 30 percent of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
 
 \begin{table}[ht]
 	\center
@@ -371,27 +367,27 @@ To understand the behavior of the algorithm, we extend our experiments by analyz
 		32 &  3.1 &  2.7 &  1.1 &  4.0 &  2.9 &  1.1 &  4.0 &  3.0 &  1.1 \\
 		128 &  3.0 &  2.0 &  1.0 &  3.0 &  2.0 &  1.0 &  3.0 &  2.1 &  1.0
 	\end{tabular}
-	\caption{The length of longest merging sequence in PMF($h_{PMF}$) constructed in Phase 1; maximum ($h_{max}$), and average ($h_{mean}$) lengths for merging sequences, used in Phase 2 of \greedyAlgo. \comment{sertac}{cerny deneyleri}}
+	\caption{The length of longest merging sequence in PMF($h_{PMF}$) constructed in Phase 1; maximum ($h_{max}$), and average ($h_{mean}$) lengths for merging sequences, used in the second phase of \greedyAlgo. \comment{sertac}{cerny deneyleri}}
 	\label{table:levels}
 \end{table}
 
 \begin{figure}[ht]
 	\centering
 	\subfigure[$n = 2000$]{
-		\includegraphics[width=0.45\textwidth]{figs/node_2000.png}
+		\includegraphics[width=0.55\textwidth]{figs/node_2000.png}
 	}
 	\subfigure[$n = 4000$]{
-		\includegraphics[width=0.45\textwidth]{figs/node_4000.png}
+		\includegraphics[width=0.55\textwidth]{figs/node_4000.png}
 	}
 	\subfigure[$n = 8000$]{
-		\includegraphics[width=0.45\textwidth]{figs/node_8000.png}
+		\includegraphics[width=0.55\textwidth]{figs/node_8000.png}
 	}
 	\caption{The percentage of nodes at each level in PMF \comment{sertac}{distance yerine length yazmak lazim. Daha okunabilir ve diger graphlerle uyumlu bir halini yapmak icin graphlerin exceldeki hallerini bulmam lazim}}
 	\label{fig:nodes-at-levels}
 \end{figure}
 
 
-With the help of experiments, we observe that execution time of PMF construction phase dominates \greedyAlgo\ algorithm. We also notice that all information from first phase is not used in second phase. Therefore we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. Also some algorithmic improvements to prevent unnecessary computations in first phase are introduced in Section \ref{sec:speedup}.
+With the help of experiments, we observed that execution time of PMF construction phase dominates the \greedyAlgo\ algorithm. We also noticed that all information from first phase is not used in second phase. Therefore we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. Also some algorithmic improvements to prevent unnecessary computations in first phase are introduced in Section \ref{sec:speedup}.
 
 
 %%%%%%%%%%%%% PARALLEL %%%%%%%%%%%%%%  
@@ -603,22 +599,25 @@ In Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} 2 different pa
 
 As Table \ref{table:phase-comparison} shows, execution time of second phase is negligible for random automata. However, it is not the case for slowly synchronizing automata. Our experiments show that execution time for phase two dominates the overall time for Cerny automata. Hence, parallelization of first phase does not give observable speedups for slowly synchronizing automata. In this section the observations of second phase and the algorithm for parallelization is introduced.
 
-Second phase of the algorithm has two major sub phases: finding a pair with minimum length of merging sequence (Algorithm \ref{algo:find-min}) and applying the found sequences to current set of states. The algorithm applies these two sub phases until the current set of state is singleton. To observe behavior of the second phase, we extend our experiment and observe the execution time of finding the pair and applying the sequence. Since the execution time of second phase for random automata is less than 1 second, only cerny automata is used as experiment set. For the experiment, we used cerny automata for each $n \in \{2000, 4000, 8000\}$ states. To achieve confidential results, each cases are executed 100 times. Table \ref{table:second-phase-detail} shows the average of the experiment results.
+Second phase of the algorithm has two major sub phases: finding a pair with minimum length of merging sequence (Algorithm \ref{algo:find-min}) and applying the found sequences to current set of states. The algorithm applies these two sub phases until the current set of state is singleton. To observe behavior of the second phase, we extend our experiment and observe the execution time of finding the pair and applying the sequence. Since the execution time of second phase for random automata is less than 1 second, only cerny automata is used as experiment set. For the experiment, we used cerny automata for each $n \in \{2000, 4000, 8000\}$ states. To achieve confidential results, each cases are executed 5 times. Table \ref{table:phase-2-comparison} shows the average of the experiment results.
 
 
 \begin{table}[ht]
 	\center
 	\scalebox{0.8}{
-		\begin{tabular}{r|rrr|rrr|rrr}
-			&\multicolumn{3}{|c}{$n = 2000$}&\multicolumn{3}{|c}{$n = 4000$}&\multicolumn{3}{|c}{$n = 8000$}\\
-			$p$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$ & $t_{PMF}$ & $t_{ALL}$ & $\frac{t_{PMF}}{t_{ALL}}$\\\hline
+		\begin{tabular}{r|rrr}
+			
+			n & $t_{FIND\_MIN}$ & $t_{SECOND\_PHASE}$ & $\frac{t_{FIND\_MIN}}{t_{SECOND\_PHASE}}$ \\\hline
+			2000 & 4.729 & 4.741 & 0.997 \\
+			4000 & 41.034 & 41.098 & 0.998 \\
+			8000 & 1035.093 & 1035.48 & 1.000 \\
 		\end{tabular}
 	}
-	\caption{\comment{sertac}{second phase deneyleri}}
-	\label{table:second-phase-detail}
+	\caption{Comparison of Execution time of the Algorithm \ref{algo:find-min}($t_{FIND\_MIN}$) and the second phase ($t_{SECOND\_PHASE}$)}
+	\label{table:phase-2-comparison}
 \end{table}
 
-Table \ref{table:second-phase-detail} shows that Algorithm \ref{algo:find-min} dominates the execution time of the \greedyAlgo\ algorithm. Since the algorithm is simple, the parallelization is also simple. The algorithm distributes the set $C^{\langle 2 \rangle}$ to threads, each thread finds a local minimum and then the algorithm merges local minimums to find global minimum.
+Table \ref{table:phase-2-comparison} shows that Algorithm \ref{algo:find-min} dominates the execution time of the \greedyAlgo\ algorithm. Since the algorithm is simple, the parallelization is also simple. The algorithm distributes the set $C^{\langle 2 \rangle}$ to threads, each thread finds a local minimum and then the algorithm merges local minimums to find global minimum.
 
 
 
@@ -650,9 +649,9 @@ Table \ref{table:second-phase-detail} shows that Algorithm \ref{algo:find-min} d
 	}
 \end{algorithm}
 
-\subsection{Implementation details}\label{subsec:imp}
+\subsection{Implementation Details}\label{sec:implementation}
 \comment{sertac}{kopyala yapistir oldu burasi}
-To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality.
+To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality. We also sorted the set of current pairs by their indexes before the line 2 in Algorithm \ref{algo:find-min-parallel} since it is better for spatial locality.
 
 The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all the algorithms in the paper uses it and this improvement will not have change their relative performance.
 
@@ -693,9 +692,11 @@ Therefore the CUDA programming model is a hybrid computing model in
 which a GPU is referred as a co-processor (\textit{device}) for the
 CPU (\textit{host}).
 
-Due to architecture of GPU, algorithms that require less synchronization are more efficient. Since the number of threads too high, creating frontier and remaining sets is an inefficient operation. Therefore we implemented S2R and S2F algorithms. For CUDA version, each thread checks only one pair. To match pairs and threads, memory indexing formula is used.  requires synchronization to find global minimum. 
+Due to architecture of GPU, algorithms that require less synchronization are more efficient. Since the number of threads too high, creating frontier and remaining sets is an inefficient operation. Therefore we implemented S2R and S2F algorithms. For CUDA version, each thread checks only one pair. To match pairs and threads, memory indexing formula is used.  requires synchronization to find global minimum.
 
-For CUDA implementation of Algorithm \ref{algo:find-min-parallel} we used constant amount of threads. Each threads uses memory indexing formula to check pairs and finds the local minimum, like in S2R and S2F. When threads finds the local minimum it uses {\tt atomicMin} operation instead of sequential synchronization.
+For CUDA implementation of Algorithm \ref{algo:find-min-parallel} we used constant amount of threads. Each threads uses memory indexing formula to check pairs and finds the local minimum, like in S2R and S2F. When threads finds the local minimum it uses {\tt atomicMin} operation instead of sequential synchronization. 
+
+
 
 %%%%%% SPEEDING UP THE FASTEST %%%%%% 
 \clearpage
@@ -840,8 +841,9 @@ All the experiments in the paper are performed on a single machine running on 64
 \sloppy
 To measure the efficiency of the proposed algorithms, we used randomly generated automatons\footnote{For each state $s$ and input $x$, $\delta(s,x)$ is randomly assigned to a state $s' \in S$.} with $n  \in \{2000, 4000, 8000\}$ states and ${p \in \{2, 8, 32, 128\}}$ inputs. For each $(n, p)$ pair, we randomly generated $100$ different automatons and executed each algorithm on these automatons. The values in the figures and the tables are the averages of these $100$ executions for each configuration, i.e., algorithm, $n$ and $p$. As slowly synchronizing automata, we also used Cerny automata with $n  \in \{2000, 4000, 8000\}$ states. Since there is only one automaton for each $n$, for more reliable results we execute the algorithms 5 times for each $n$ value.
 
+\subsection{Multicore Parallelization of PMF Construction}
 
-\subsection{Multicore parallelization of PMF construction}
+For comparison, we implemented Algorithm in Section \ref{algo:greedy}, which is called sequential in this section. As CPU parallelization, we used the algorithms in Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} and \ref{sec:BFS-Hybrid-parallel} and tested with 1,2,4,8 and 16 threads. To observe effect of the indexing formula, We implement GPU parallelization with basic indexing and memory optimized functions. We called two implementations as CUDA and CUDA M.O. respectively.
 
 Figure~\ref{fig:f2r-speedup} shows the speedups of our parallel F2R implementation over the sequential baseline~(that has no parallelism). Since F2R uses the same frontier extension mechanism with the sequential baseline, whereas R2F, S2R and S2F employ completely different ones, here we only present the speedup values of F2R. As the figure shows, when $p$ is large, the parallel F2R presents good speedups, e.g., for $p = 128$, the average speedup is $13.4$ with $16$ threads. Furthermore, when compared to the single-thread F2R, the average speedup is $14.9$ with $16$ threads. A performance difference between sequential baseline and single-threaded F2R exists because of the parallelization overhead during the local queue management. Overall, we observed $21\%$ parallelization penalty for F2R on the average over the sequential baseline for all $(n, p)$ pairs.
 
@@ -867,7 +869,7 @@ For $p$ values smaller than $128$, i.e., $2$, $8$, and $32$, the average speedup
 	\centering
 	\begin{spacing}{1.2}
 		\scalebox{0.6}{
-			\begin{tabular}{ll|rrrr|rrrr|rrrr}
+			\begin{tabular}{rr|rrrr|rrrr|rrrr}
 				\multicolumn{1}{c}{} & \multicolumn{1}{c|}{} & \multicolumn{4}{c|}{n=2000} & \multicolumn{4}{c|}{n=4000} & \multicolumn{4}{c}{n=8000} \\
 		
 				\multicolumn{1}{c}{} & \multicolumn{1}{c|}{p} & \multicolumn{1}{c}{2} & 		\multicolumn{1}{c}{8} & \multicolumn{1}{c}{32} & \multicolumn{1}{c|}{128} & \multicolumn{1}{c}{2} & \multicolumn{1}{c}{8} & \multicolumn{1}{c}{32} & \multicolumn{1}{c|}{128} & \multicolumn{1}{c}{2} & \multicolumn{1}{c}{8} & \multicolumn{1}{c}{32} & \multicolumn{1}{c}{128} \\ \hline
@@ -948,16 +950,16 @@ Observing such performance differences for R2F and F2R on automatons with differ
 
 When the Hybrid algorithm is used, the speedups on the PMF generation phase are given in Figure~\ref{fig:hybrid-speedup}. As the figure shows, thanks to parallelism and good scaling of Hybrid~(for large $p$ values), the speedups increase when the number of threads increases. The PMF generation process becomes $25$, $51$, $143$, and $494$ times faster when CUDA implementation with memory optimization used for $2$, $8$, $32$, and $128$ letter automatons, respectively.Even with single thread, i.e., no parallelization, the Hybrid heuristic is $33$ times faster than the sequential algorithm for $p=128$ and $n=8000$.
 
-Since we generate the PMF to find a synchronizing sequence, a more practical evaluation metric would be the performance improvement over the sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \textsc{Greedy} heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for single thread and $16$ thread Hybrid executions. As the results show, even when the sequence construction phase is not parallelized, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.
+Since we generate the PMF to find a synchronizing sequence, a more practical evaluation metric would be the performance improvement over the sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \greedyAlgo\ heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for single thread and $16$ thread Hybrid executions. As the results show, even when the sequence construction phase is not parallelized, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.
 
 \begin{table}[ht]
 	\center
 	\begin{tabular}{r|rrrr||rrrr}
 		& \multicolumn{4}{c||}{Speedup} & \multicolumn{4}{c}{$\frac{t_{PMF}}{t_{ALL}}$}\\ 
 		n\textbackslash p  & \multicolumn{1}{c}{2} & \multicolumn{1}{c}{8} & \multicolumn{1}{c}{32} & \multicolumn{1}{c||}{128} & \multicolumn{1}{c}{2} & \multicolumn{1}{c}{8} & \multicolumn{1}{c}{32} & \multicolumn{1}{c}{128} \\ \hline
-		2000 & 6.69 & 18.55 & 50.60 & 159.54 & 0.52 & 0.53 & 0.69 & 0.77 \\
-		4000 & 10.94 & 25.29 & 61.33 & 213.27 & 0.50 & 0.46 & 0.62 & 0.68 \\
-		8000 & 9.55 & 20.66 & 64.28 & 234.91 & 0.36 & 0.39 & 0.45 & 0.47 
+		2000 & 11.90 & 34.20 & 72.99 & 206.84 & 0.52 & 0.53 & 0.69 & 0.77 \\
+		4000 & 20.84 & 54.27 & 97.60 & 315.45 & 0.50 & 0.46 & 0.62 & 0.68 \\
+		8000 & 24.92 & 51.00 & 143.01 & 493.97 & 0.36 & 0.39 & 0.45 & 0.47 
 	\end{tabular}
 	\caption{The speedups obtained on \greedyAlgo\ algorithm when the memory optimized CUDA implementation of Hybrid PMF construction algorithm is used.}
 	\label{table:phase-comparison-after}
@@ -966,6 +968,88 @@ Since we generate the PMF to find a synchronizing sequence, a more practical eva
 As noted before, F2R based PMF construction has $O(pn^2)$ time complexity. R2F based PMF construction, on the other hand, has $O(dpn^2)$ time complexity (where $d$ is the diameter of the pair automaton ${\cal A}$), since states of ${\cal A}$ in the remaining set $R$ will be processed at most $d$ times. In practice, however, R2F based construction (and Hybrid computation which also has $O(dpn^2)$ time complexity since it performs R2F steps) can beat F2R based construction.
 
 We did not perform an extensive study on automata with larger state numbers, since it takes too long with the sequential baseline implementation. For example, sequential PMF generation takes around 75 minutes for an automaton with 32000 states and 128 letters, whereas our Hybrid implementation completes in 3 minutes.\comment{sertac}{deneyi cuda icin tekrar atmam lazim}
+
+\subsection{Second Phase Parallelization}
+
+As mentioned in Section \ref{sec:second-phase-parallelization}, execution time of second phase is worthy of note for only slowly synchronizing automata. Hence we used Cerny automata with $n \in \{ 2000, 4000, 8000 \}$ to compare our implementations. For CPU parallelization of second phase, we implemented the Algorithm \ref{algo:find-min-parallel} and tested with 1, 2, 4, 8 and 16 threads. For GPU parallelization we implemented the same algorithm with 256 thread per block and 256 block. We also implemented the approach that sorts the set of current pairs as mentioned in Section \ref{sec:implementation}.
+
+
+\begin{table}[ht]
+	\center
+	\begin{tabular}{rr|rrr}
+		& n & 2000 & 4000 & 8000\\\hline
+		\multirow{2}{*}{sequential} & unsorted & 4.729 & 41.034 & 1035.093\\
+		& sorted & 1.604 & 12.701 & 109.758\\\hline
+		\multirow{2}{*}{1} & unsorted & 5.098 & 47.021 & 896.384\\
+		& sorted \\\hline
+		\multirow{2}{*}{2} & unsorted & 3.869 & 37.352 & 874.253\\
+		& sorted \\\hline
+		\multirow{2}{*}{4} & unsorted & 2.308 & 22.705 & 522.930\\
+		& sorted \\\hline
+		\multirow{2}{*}{8} & unsorted & 1.259 & 13.131 & 289.750\\
+		& sorted \\\hline
+		\multirow{2}{*}{16} & unsorted & 0.694 & 6.674 & 154.796\\
+		& sorted \\\hline
+		\multirow{2}{*}{CUDA} & unsorted & 0.684 & 5.514 & 51.280\\
+		& sorted & 0.391 & 1.556 & 9.613
+	\end{tabular}
+	\caption{}
+	\label{table:phase-2-time}
+\end{table}
+
+\subsection{Speeding up the Fastest}
+
+We call the implementation of \greedyAlgo\ below as the naive baseline implementation. We also implemented the improvements over naive baseline as suggested in Section~\ref{sec:lazy}, Section~\ref{sec:lookahead}, and Section~\ref{sec:smart}. Below, we call these implementations as ``Lazy'', ``Lookahead'', and ``Smart'', respectively. Note that Lookahead is implemented on top of Lazy, and Smart is implemented on top of Lazy and Lookahead.
+
+
+Figure~\ref{fig:speedups} presents the speedups of each improvement~(i.e. Lazy,  Lookahead, and Smart) over the naive baseline for \greedyAlgo . Lazy computation provides a stable improvement, which is more sensitive to alphabet size $p$. For a given alphabet size, we observe a somewhat constant speed up values. However, the average speedup values increase with the alphabet size. The lookahead also provides a stable improvement and it is more effective. For small alphabet sizes, the speedup provided by the lookahead is almost constant for different number of states. For larger alphabet sizes, on the other hand, the speedup provided by the lookahead increases with the number of states. The effect of the lookahead also increases with the alphabet size. The smart intersection check similarly improves the performance, but not to the same extent as lazy and lookahead. In fact, with smart intersection check, the speedup for $n = 1000$ and $p = 128$ is reduced from $47$ to $44$. We believe that this is due to our simple check that only compares $|C^{\langle 2 \rangle}|$ and $|P|$  and does not consider the number of instructions, spatial locality, cache utilization etc.\comment{sertac}{state sayisi 1000 olanlar buraya kadar hic yok burada dahil etmeli miyiz?}
+
+
+\begin{figure}[ht]
+	\centering
+	\subfigure[$p = 2$]{
+		\includegraphics[width=0.38\textwidth]{figs/p2_greedy.png}
+	}
+	\subfigure[$p = 8$]{
+		\includegraphics[width=0.38\textwidth]{figs/p8_greedy.png}
+	}
+	\subfigure[$p = 32$]{
+		\includegraphics[width=0.38\textwidth]{figs/p32_greedy.png}
+	}
+	\subfigure[$p = 128$]{
+		\includegraphics[width=0.38\textwidth]{figs/p128_greedy.png}
+	}
+	\caption{The speedup values normalized w.r.t. the naive baseline. For each additional improvement, the cumulative speedup is given with stacked columns.\comment{sertac}{n=1000 kalsin mi?}}
+	\label{fig:speedups}
+\end{figure}
+
+Overall, when all the improvements are considered together, the average speedup values shows an increasing trend as the size of the automaton increases, and as we apply more aggressive improvements. We start with $2\times$ speedup for the automata with $n=1000$ and $p=2$ when only the lazy computation is enabled, and we reach to $95\times$ (almost two orders of magnitude) speedup for the automata with $n=8000$ and $p=128$ when all the improvements are enabled.\comment{sertac}{n=1000}
+
+To validate effectiveness of our methods, we compare the time spent for BFS forest construction in each method. Note that, the time spent in PMF construction is proportional to the number of edges processed. The total number of edges to be processed for an automaton with $n$ states and $p$ letters is $pn(n-1)/2$. Table~\ref{table:edge-percent} reports the percentage of these edges processed by each method.
+
+\begin{table}[ht]
+	\center
+	\begin{tabular}{rr||r||rrr}
+$n$		&	$p$	& Algorithm~\ref{algo:BFS} 	& Lazy		& Lookahaed & Smart \\\hline\hline
+2000	& 2		& 99.99\%					& 40.31\%	& 1.71\%	& 1.71\%\\
+		& 8		& 84.83\%					& 12.18\%	& 0.56\%	& 0.57\%\\
+		& 32	& 37.41\%					& 3.64\%	& 0.25\%	& 0.25\%\\
+		& 128	& 11.19\%					& 1.00\%	& 0.11\%	& 0.09\%\\\hline
+4000	& 2		& 99.99\%					& 36.92\%	& 1.42\%	& 1.52\%\\
+		& 8		& 87.11\%					& 11.72\%	& 0.42\%	& 0.45\%\\
+		& 32	& 40.12\%					& 2.93\%	& 0.16\%	& 0.17\%\\
+		& 128	& 12.08\%					& 0.94\%	& 0.07\%	& 0.08\%\\\hline
+8000	& 2		& 100.00\%					& 37.56\%	& 1.31\%	& 1.24\%\\
+		& 8		& 89.16\%					& 12.09\%	& 0.38\%	& 0.33\%\\
+		& 32	& 42.78\%					& 3.08\%	& 0.11\%	& 0.06\%\\
+		& 128	& 13.02\%					& 0.83\%	& 0.06\%	& 0.05\%
+	\end{tabular}
+	\caption{The percentage of processed edges}
+	\label{table:edge-percent}
+\end{table}
+First of all, note that even Algorithm~\ref{algo:BFS} does not process all edges. This is caused by the termination condition of the while--loop at line 5. In Algorithm~\ref{algo:BFS}, another possible termination is given at line 5 as a comment: ``$F$ is not empty''. When this alternative termination condition is used, Algorithm~\ref{algo:BFS} processes 100\% of the edges. 
+
+Recall that the initial motivation for this work is based on the observation that PMF construction time being too high compared to the overall running time of \greedyAlgo . We aimed at reducing this high cost, by modifying \greedyAlgo\ so that they can run without full PMF construction. The figures in Table~\ref{table:edge-percent} show that we succeed. Only a very small part of the PMF is constructed in the modified version of \greedyAlgo yA. As the size of the automata increases, the percentage of the PMF constructed decreases.
 
 \clearpage
 \section{Conclusion and Future Works}
