@@ -238,6 +238,7 @@ An automaton which is produced from the set of pairs; ${\cal A}^{\langle 2 \rang
 Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is one then $w$ is a \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. When $C=S$, $w$ is called a \textit{reset word} of automaton and the automaton is synchronizable. As shown by \cite{Eppstein90}, deciding if an automaton is synchronizing can be performed in time $O(pn^2)$ by checking if there exists a merging word for $\{ s_i, s_j \}$, for all  $\{ s_i, s_j \} \in S^{\langle 2 \rangle}$. 
 Recently, Berlinkov \cite{Berlinkov2016} showed that there exist an algorithm that decides on synchronizability in linear expected time in $n$. 
 
+\kkcomm{define Cerny automata here}
 
 \clearpage
 \section{Eppstein's \greedyAlgo\ Algorithm}
@@ -369,8 +370,7 @@ The upper bounds of the phases can be computed in a slightly different way. For 
 \subsection{Analysis on \greedyAlgo}
 \label{sec:greedy-analysis}
 
-
-In Section \ref{sec:greedy}, \greedyAlgo\ algorithm  is introduced and its two phases are explained. Complexity of the PMF construction, the first phase, is $O(pn^2)$. For most of the cases $p$ is too small when compared to $n$. So, the complexity of the second phase, $O(n^4)$, dominates the first phase in theory. To analyze the algorithm, we performed experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition, we used \v{C}ern\'y automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. In Table \ref{table:phase-comparison}, experiments from 1200 randomly generated automata shows that the execution time of the second phase does not dominate the overall time of the algorithm.
+As discussed in Section \ref{sec:greedy}, the time complexity of \greedyAlgo\ is $O(pn^2 + n^4)$. For most of the cases, $p$ is too small when compared to $n$. Hence, the complexity of the second phase, $O(n^4)$, dominates the first phase in theory. To analyze the algorithm, we performed experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition, we used \v{C}ern\'y automata \kkcomm{we need the definition in the previous section} \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. In Table \ref{table:phase-comparison}, experiments from 1200 randomly generated automata show that the execution time of the second phase does not dominate the overall time of the algorithm for random automata.
 
 \begin{table}[ht]
 	\center
@@ -389,7 +389,7 @@ In Section \ref{sec:greedy}, \greedyAlgo\ algorithm  is introduced and its two p
 	\label{table:phase-comparison}
 \end{table}
 
-To understand the behavior of the algorithm, we extended our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, the length of the merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence. For instance, when automata with 8000 states and 128 letters are considered, the lengths of merging sequences in PMF are at most 3, not 64000000. Another observation is that the second phase tends to pick shorter length of merging sequences. For example, when we take an automaton with 8000 states and 2 letters, the longest merging sequence in PMF has the length 16.9. Second phase uses only merging sequences with length 12.1 and less. Thus, the merging sequences of almost 30\% of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
+To understand the behavior of the algorithm, we extended our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, the length of the merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence. For instance, when automata with 8000 states and 128 letters are considered, the lengths of merging sequences in PMF are at most 3, not 64000000. Another observation is that the second phase tends to pick shorter length of merging sequences. For example, when we take an automaton with 8000 states and 2 letters, the longest merging sequence in PMF has the length 16.9. The second phase uses only merging sequences with length 12.1 and less. Thus, the merging sequences of almost 30\% of the nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
 
 \begin{table}[ht]
 	\center
@@ -424,7 +424,7 @@ To understand the behavior of the algorithm, we extended our experiments by anal
 \end{figure}
 
 
-With the help of experiments, we observed that the execution time of PMF construction phase dominates the \greedyAlgo\ algorithm. Therefore, we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. We also noticed that all information from the first phase is not used in the second phase. Furthermore, several algorithmic improvements that speedup the first phase are presented in Section \ref{sec:speedup}.
+With these experiments, we observed that the execution time of PMF construction phase in general dominates the \greedyAlgo\ algorithm except some special automata classes such as \v{C}ern\'y. Therefore, we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. We also noticed that not all information from the first phase is used in the second phase. Based on these observations, various algorithmic improvements that make \greedyAlgo\  much faster are presented in Section \ref{sec:speedup}. But first, we will focus on its parallelization in the next section.
 
 
 %%%%%%%%%%%%% PARALLEL %%%%%%%%%%%%%%  
