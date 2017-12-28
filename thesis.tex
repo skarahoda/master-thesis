@@ -208,24 +208,25 @@ In Section \ref{sec:speedup}, algorithmic optimizations which avoid most of the 
 \clearpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
-FSMs are mathematical abstractions for real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequences consider only destination state, the output is not in the scope of this work. Therefore, we can consider an FSM as an automata with a simple transition function and without an output.
+FSMs are mathematical abstractions for real word systems. When an FSM gets an input, it moves from one state to another with an output. Since synchronization sequences consider only the destination state, the output is not in the scope of this work. Therefore, we can consider an FSM as an automata with a simple transition function and without an output.
 
-When an {\em automaton} is complete and deterministic, it is defined by a triplet ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton ${\cal A}$ with 4 states and 2 inputs using graphical notation.
+When an automaton is complete and deterministic, it is defined by a triplet ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}), and $\delta : S \times \Sigma \rightarrow S$ is a deterministic transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv}~(left) shows an example automaton ${\cal A}$ with 4 states and 2 input.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/inverse.pdf}
-	\caption{A synchronizable automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
+	\caption{A synchronizing automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).
+	For each state $s \in S$ and each input $x \in \Sigma$, {\tt ids}[{\tt ptrs}[$s$] $\cdots$ {\tt ptrs}[$s+1$] $ - 1$] store the ids for all states $s'$ such that $\delta(s',x) = s$.}
 	\label{fig:inv}
 \end{figure}
 
 An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. The transition function $\delta$ can be extended to a set of states and to a word in the usual way. Assuming $\delta(s,\varepsilon)=s$, for a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
 
-The inverse of the transition is also a well defined function; $\delta^{-1}(s,x)$ denotes the set of states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
+The inverse of the transition is also a well defined function; $\delta^{-1}(s,x)$ denotes the set of states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.  Figure~\ref{fig:inv}~(right) shows the data structure used to store the inverse transition function for the example automata.
 
-Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality two. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality two. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called a \textit{singleton}, otherwise called a \textit{pair}. 
 
-An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called the \textit{pair automaton}. For a pair automaton, the set of inputs are the same and the transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. 
+An automaton which is produced from the set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called the \textit{pair automaton}. For a pair automaton, the set of inputs is the same and the transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. 
 
 \begin{figure}[ht]
 	\centering
