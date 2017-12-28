@@ -20,6 +20,9 @@
 \usepackage[section]{placeins}
 
 
+\newcommand{\kkcomm}[1]{{\color{red}{\bf kk: #1}}}
+
+
 \makeatletter
 \AtBeginDocument{%
   \expandafter\renewcommand\expandafter\subsection\expandafter{%
@@ -177,7 +180,7 @@ $ $
 \section{Introduction}
 \label{sec:Intro}
 
-A {\em synchronizing word} $w$ for an automaton $\mathcal{A}$ is a sequence of inputs such that no matter at which state $\mathcal{A}$ currently is, if $w$ is applied, $\mathcal{A}$ is brought to a particular state. Such words do not necessarily exist for every automaton. An automaton with a synchronizing word is called {\em synchronizing automaton}.
+A {\em synchronizing word} $w$ for an automaton $\mathcal{A}$ is a sequence of inputs such that no matter at which state $\mathcal{A}$ currently is, if $w$ is applied, $\mathcal{A}$ is brought to a particular state. Such words do not necessarily exist for every automaton. An automaton with a synchronizing word is called {\em synchronizing}.
 
 Synchronizing automata have practical applications in many areas. For example in model based testing \cite{Broy05} and in particular, for finite state machine based testing \cite{LY96}, test sequences are designed to be applied at a designated state. The implementation under test can be brought to the desired state by using a synchronizing word. Similarly, synchronizing words are used to generate test cases for synchronous circuits with no reset feature \cite{Cho93}. Even when a reset feature is available, there are cases where reset operations are too costly to be applied. In these cases, a synchronizing word can be used as a compound reset operation \cite{JUY15}. Natarajan \cite{Natarajan86} puts forward another surprising application area, part orienters, where a part moving on a conveyor belt is oriented into a particular orientation by the obstacles placed along the conveyor belt. The part is in some unknown orientation initially, and the obstacles should be placed in such a way that, regardless of the initial orientation of the part, the sequence of pushes performed by the obstacles along the way makes sure that the part is in a unique orientation at the end. Volkov \cite{Volkov08} presents more examples for the applications of synchronizing words together with a survey of theoretical results related to synchronizing automata.
 
@@ -193,14 +196,14 @@ Due to the hardness results given above for finding shortest synchronizing words
 The fastest synchronizing heuristics, \textsc{Greedy} and \textsc{Cycle}, are also the earliest heuristics that appeared in the literature. Therefore \textsc{Greedy} and \textsc{Cycle} are usually considered as a baseline to evaluate the quality and the performance of new heuristics. Newer heuristics do generate shorter synchronizing words, but by performing a more complex analysis, which implies a substantial increase on the runtime. The time performance of \textsc{Greedy} and \textsc{Cycle} are unmatched to date. 
 
 
-In this work we have two focus. First, we investigate the use of modern multicore CPUs to scale the performance of synchronizing heuristics. We consider the \textsc{Greedy} algorithm to start with, as it is one of the two cheapest synchronizing heuristics (in practice as well \cite{RS15}), known to produce shorter sequences than \textsc{Cycle} \cite{RS15}, and has been widely used as a baseline to evaluate the quality and speed of more advanced heuristics.  To the best of our knowledge, this is the first work towards parallelization of  synchronizing heuristics. Although, a parallel approach for constructing a synchronizing sequence for a {\em partial}  machines is proposed in \cite{Uraz}, the method proposed in \cite{Uraz} is not exact (in the sense that it may fail to find a synchronizing sequence even if one exists) and also it is not a polynomial
+In this work we have two focus: First, we investigate the use of modern multicore CPUs to scale the performance of synchronizing heuristics. We consider the \textsc{Greedy} algorithm to start with, as it is one of the two cheapest synchronizing heuristics (in practice as well \cite{RS15}), known to produce shorter sequences than \textsc{Cycle} \cite{RS15}, and has been widely used as a baseline to evaluate the quality and speed of more advanced heuristics.  To the best of our knowledge, this is the first work towards parallelization of  synchronizing heuristics. Although, a parallel approach for constructing a synchronizing sequence for {\em partial}  machines \kkcomm{define partial} has been proposed in \cite{Uraz}, it is not exact (in the sense that it may fail to find a synchronizing sequence even if at least one exists). Furthermore, it is not a polynomial
 time algorithm.
 
 All synchronizing heuristics consist of a preprocessing phase, followed by synchronizing sequence generation phase. As presented in this paper, our initial experiments revealed that the preprocessing phase dominates the runtime of the overall algorithm for \textsc{Greedy}. Therefore for both parallelization and for algorithmic improvements of \textsc{Greedy},
 we mainly focus on the first phase of the algorithm.
 
-The rest of the paper is organized as follows: In Section~\ref{sec:Preliminaries}, the notation is given, and synchronizing sequences are formally defined. We give the details of Eppstein's {\sc Greedy} construction algorithm in Section \ref{sec:greedy}. The parallelization approach together with implementation details are described in Section \ref{sec:parallel}.
-In Section \ref{sec:speedup}, algorithmic speedups that avoid redundant computations are introduced. Section \ref{sec:results} presents the experimental results and Section~\ref{sec:conclusion} concludes the paper.
+The rest of the paper is organized as follows: In Section~\ref{sec:Preliminaries}, the notation used in the thesis is introduced, and synchronizing sequences are formally defined. We give the details of Eppstein's {\sc Greedy} construction algorithm in Section \ref{sec:greedy}. The parallelization approach together with the implementation details are described in Section \ref{sec:parallel}.
+In Section \ref{sec:speedup}, algorithmic optimizations which avoid most of the redundant computations in the original heuristic are introduced. Section \ref{sec:results} presents the experimental results and Section~\ref{sec:conclusion} concludes the thesis. \kkcomm{paper kalmis burada, bunu text icinde kontrol edelim thesis yapalim varsa}
 
 \clearpage
 \section{Preliminaries}
