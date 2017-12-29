@@ -639,9 +639,9 @@ For GPU parallelization, the algorithm processes the entire pair set $S^{\langle
 \subsection{Parallelization of the Second Phase}
 \label{sec:second-phase-parallelization}
 
-As Table \ref{table:phase-comparison} demonstrates, execution time of the second phase is negligible for random automata. However, it is not the case for slowly synchronizing automata. Our experiments indicated that the execution time for the second phase dominates the overall time for \v{C}ern\'y automata. Hence, the parallelization of first phase does not give observable speedups for slowly synchronizing automata. In this section the observations and the parallelization of the second phase are introduced.
+As Table \ref{table:phase-comparison} demonstrates, the execution time of the second phase is negligible for random automata. However, it is not the case for slowly synchronizing automata. Our experiments indicate that the execution time for the second phase dominates the overall time for \v{C}ern\'y automata. Hence, parallelizing the first phase is not sufficient to obtain significant speedups. In this section, the parallelization of the second phase is introduced.
 
-The second phase of the algorithm has two major sub phases: finding a pair with the minimum length of merging sequence (Algorithm \ref{algo:find-min}) and applying the sequence of the pair to the current set of states. The algorithm applies these two sub phases until the current set of state is singleton. To observe behavior of the second phase, we extended our experiments and observed the execution times of finding the pair and applying the sequence. Since the execution time of the second phase for random automata is less than 1 second, only \v{C}ern\'y automata is used as an experiment set. For the experiments, we used \v{C}ern\'y automata for each $n \in \{2000, 4000, 8000\}$ states. To achieve confidential results, each cases are executed 5 times. Table \ref{table:phase-2-comparison} presents the average execution times of the experiment results.
+The second phase of the algorithm has two major sub-phases: 1) finding a pair having the minimum length merging sequence (Algorithm \ref{algo:find-min}) and 2) applying this merging sequence to the current active state set. The algorithm applies these two sub-phases until the automata is synchronized. To observe the behavior of the second phase, we extended our preliminary experiments and measure the execution times for these sub-phases. Since the second phase takes less than only one second for random automata, only \v{C}ern\'y automata with $n \in \{2000, 4000, 8000\}$ states are used for this set of experiments. To reduce the variance on the measured individual execution times, each experiment is repeated 5 times. Table \ref{table:phase-2-comparison} presents the averages of these executions.
 
 
 \begin{table}[ht]
@@ -655,13 +655,11 @@ The second phase of the algorithm has two major sub phases: finding a pair with 
 			8000 & 1035.093 & 1035.48 & 1.000 \\
 		\end{tabular}
 	}
-	\caption{Comparison of execution time of the Algorithm \ref{algo:find-min}($t_{FIND\_MIN}$) and the second phase ($t_{SECOND\_PHASE}$)}
+	\caption{Comparison of the execution time of Algorithm \ref{algo:find-min}~($t_{FIND\_MIN}$), i.e., the first sub-phase, and the second phase ($t_{SECOND\_PHASE}$).}
 	\label{table:phase-2-comparison}
 \end{table}
 
-Table \ref{table:phase-2-comparison} shows that Algorithm \ref{algo:find-min} dominates the execution time of the second phase. Since the algorithm is simple, the parallelization is also simple. The algorithm distributes the set $C^{\langle 2 \rangle}$ to threads, each thread finds a local minimum and then the algorithm merges local minimums to find global minimum sequentially.
-
-
+The table shows that Algorithm \ref{algo:find-min} dominates the execution time of the second phase. Fortunately, the sub-phase is pleasingly parallelizable. The algorithm distributes the set $C^{\langle 2 \rangle}$ to the threads. Each thread finds a local minimum in parallel which are then sequentially merged to obtain a global minimum.
 
 \begin{algorithm}[ht]
 	\caption{Find\_Min (in parallel)}
