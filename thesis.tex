@@ -214,7 +214,7 @@ When an automaton is complete and deterministic, it is defined by a triplet ${\c
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/inverse.pdf}
 	\caption{A synchronizing automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).
-	For each state $s \in S$ and each input $x \in \Sigma$, {\tt ids}[{\tt ptrs}[$s$] $\cdots$ {\tt ptrs}[$s+1$] $ - 1$] store the ids for all states $s'$ such that $\delta(s',x) = s$.}
+	For each state $s \in S$ and each input $x \in \Sigma$, {\tt ids}$_x$[{\tt ptrs}$_x$[$s$] $\cdots$ {\tt ptrs}$_x$[$s+1$] $ - 1$] store the ids for all states $s'$ such that $\delta(s',x) = s$.}
 	\label{fig:inv}
 \end{figure}
 
@@ -238,6 +238,42 @@ Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is o
 Recently, Berlinkov \cite{Berlinkov2016} showed that there exist an algorithm that decides on synchronizability in linear expected time in $n$. 
 
 \kkcomm{define Cerny automata here}
+
+\subsection{Graphics Processing Units and CUDA}\label{sec:gpu}
+
+At the hardware level, a CUDA capable Graphics Processing Units~(GPU) processor is a collection of
+\textit{multiprocessors} (SMX), each having a number of
+\textit{processors}.  Each multiprocessor has its own shared memory
+which is common to all its processors.  It also has a set of
+registers, texture memory (a read only memory for the GPU), and
+constant (a read only memory for the GPU that has the lowest access
+latency) memory caches.  In any given cycle, each processor in the
+multiprocessor executes the same instruction on different data.
+Communication between multiprocessors can be achieved through the
+\textit{global device memory}, which is available to all the
+processors in all multiprocessors~\cite{nvidia}.
+
+In the software level, the CUDA model is a collection of threads
+running in parallel.  The programmer decides on the number of threads
+to be launched.  A collection of threads, called a \textit{warp},
+running simultaneously (on a multiprocessor).  If the number of
+threads is more than the warp size then these threads are time-shared
+internally on the multiprocessor.  At a given time, a \textit{block}
+of threads runs on a multiprocessor.  Therefore a threads in block may
+have bundled into several number of warps.  Each thread executes a
+piece of code called a \textit{kernel}.  The kernel is the core code
+to be executed on a multiprocessor.  During its execution, a thread
+$t_i$ is given a unique ID and during execution thread $t_i$ can
+access data residing in the GPU by using its ID.  Since the GPU memory
+is available to all the threads, a thread can access any memory
+location.  During GPU computation the CPU can continue to operate.
+Therefore the CUDA programming model is a hybrid computing model in
+which a GPU is referred as a co-processor (\textit{device}) for the
+CPU (\textit{host}).
+
+
+
+
 
 \clearpage
 \section{Eppstein's \greedyAlgo\ Algorithm}
@@ -581,7 +617,7 @@ For R2F, the number of edges per vertex is fixed to alphabet size. For F2R, the 
 \label{sec:BFS-entire-set}
 In both Algorithms \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel}, each thread uses a local set. At the end of each BFS step, the algorithm merges the local sets to construct the global set. One drawback of this approach is the increased memory footprint; since we cannot predict the local frontier sizes at each step, to fully avoid locks and other synchronization constructs, for each local frontier set, we need to allocate a space large enough to store all possible pairs. This approach is feasible for multicore processors since we only have tens of cores. 
 
-A Graphics Processing Unit~(GPU) is a high-performance accelerator that can concurrently execute thousands of threads at the same time. However, the global memory size on a GPU is not as large as the memory we have on the host. Hence, the previous approach we took is not feasible on GPUs. Furthermore, it can be costly to merge thousands of local frontier sets. In addition, the GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create a large number of duplicate pairs, since the probability of a pair visited by more than a single thread increases with the number of threads. Therefore, we need another approach instead of the local set mechanism. 
+As explained in Section~\ref{sec:gpu}, a GPU is a high-performance accelerator that can concurrently execute thousands of threads at the same time. However, the global memory size on a GPU is not as large as the memory we have on the host. Hence, the previous approach we took is not feasible on GPUs. Furthermore, it can be costly to merge thousands of local frontier sets. In addition, the GPU implementation of Algorithm \ref{algo:BFS-step-F2R-Parallel} can create a large number of duplicate pairs, since the probability of a pair visited by more than a single thread increases with the number of threads. Therefore, we need another approach instead of the local set mechanism. 
 
 For GPU parallelization, the algorithm processes the entire pair set $S^{\langle 2 \rangle}$, instead of $R$ or $F$. We call this approach S2R and S2F, respectively. At each iteration of S2R, $S^{\langle 2 \rangle}$ is used and the algorithm checks if the current pair is in $F$ or not. If the pair is in $F$, then the algorithm continues as in F2R. S2F has the same idea of S2R. However, S2F checks if the pair is in $R$ or not. If it is in $R$ it executes the same logic in R2F. 
 
@@ -690,9 +726,9 @@ The table shows that Algorithm \ref{algo:find-min} dominates the execution time 
 \end{algorithm}
 
 \subsection{Implementation Details}\label{sec:implementation}
-To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality. We also sorted the set of current pairs by their indexes before the line 2 in Algorithm \ref{algo:find-min-parallel} since it is better for spatial locality.
+To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality. We also sorted the set of current pairs by their indexes before line 2 of Algorithm \ref{algo:find-min-parallel} since it improves spatial locality further.
 
-The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all the algorithms in the thesis uses it and this improvement will not have change their relative performance.
+The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all of our algorithms use it and this improvement will not have change their relative performance.
 
 \begin{figure}
 	\centering
@@ -701,41 +737,8 @@ The memory complexity of the algorithms investigated in this study is $O(n^2)$. 
 	\label{fig:mem}
 \end{figure}
 
-At the hardware level, a CUDA capable GPU processor is a collection of
-\textit{multiprocessors} (SMX), each having a number of
-\textit{processors}.  Each multiprocessor has its own shared memory
-which is common to all its processors.  It also has a set of
-registers, texture memory (a read only memory for the GPU), and
-constant (a read only memory for the GPU that has the lowest access
-latency) memory caches.  In any given cycle, each processor in the
-multiprocessor executes the same instruction on different data.
-Communication between multiprocessors can be achieved through the
-\textit{global device memory}, which is available to all the
-processors in all multiprocessors~\cite{nvidia}.
-
-In the software level, the CUDA model is a collection of threads
-running in parallel.  The programmer decides on the number of threads
-to be launched.  A collection of threads, called a \textit{warp},
-running simultaneously (on a multiprocessor).  If the number of
-threads is more than the warp size then these threads are time-shared
-internally on the multiprocessor.  At a given time, a \textit{block}
-of threads runs on a multiprocessor.  Therefore a threads in block may
-have bundled into several number of warps.  Each thread executes a
-piece of code called a \textit{kernel}.  The kernel is the core code
-to be executed on a multiprocessor.  During its execution, a thread
-$t_i$ is given a unique ID and during execution thread $t_i$ can
-access data residing in the GPU by using its ID.  Since the GPU memory
-is available to all the threads, a thread can access any memory
-location.  During GPU computation the CPU can continue to operate.
-Therefore the CUDA programming model is a hybrid computing model in
-which a GPU is referred as a co-processor (\textit{device}) for the
-CPU (\textit{host}).
-
-Due to architecture of GPU, algorithms that require less synchronization are more efficient. Since the number of threads too high, creating frontier and remaining sets is an inefficient operation. Therefore we implemented S2R and S2F algorithms. For CUDA version, each thread checks only one pair. To match pairs and threads, memory indexing formula is used.  requires synchronization to find global minimum.
-
-For CUDA implementation of Algorithm \ref{algo:find-min-parallel} we used constant amount of threads. Each threads uses memory indexing formula to check pairs and finds the local minimum, like in S2R and S2F. When threads finds the local minimum it uses {\tt atomicMin} operation instead of sequential synchronization. 
-
-
+Due to architecture of GPU, algorithms that require less synchronization are more efficient. Since the number of threads are too high, creating frontier and remaining sets is an inefficient operation. Therefore we implemented S2R and S2F algorithms. For the CUDA version, each thread checks only one pair. To match pairs and threads, the above memory indexing formula is used.  Algorithm \ref{algo:find-min-parallel} uses constant number of threads. Each thread finds its local minimum, as in S2R and S2F. 
+When a thread is done, it uses CUDA's {\tt atomicMin} operation to update the global minimum instead of sequential synchronization. 
 
 %%%%%% SPEEDING UP THE FASTEST %%%%%% 
 \clearpage
