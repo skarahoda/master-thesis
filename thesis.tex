@@ -869,25 +869,22 @@ Although some bookkeeping can be applied, we never reuse the lookahead paths fro
 
 Algorithms \ref{algo:greedy-lazy} and \ref{algo:lookahead} frequently check if $\tau(\{ s_i,s_j \})$ is undefined or not for all the pairs in $C^{\langle 2 \rangle}$. Our baseline implementation traverses the pairs in $C^{\langle 2 \rangle}$ one by one and checks if they are in $P = \{ \{s_i, s_j \}\ |\ \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$. Although this is efficient when $|C^{\langle 2 \rangle}|$ is small, $|C^{\langle 2 \rangle}|$ is not small enough at the early stages of the algorithm. Hence, we reverse the search when $|C^{\langle 2 \rangle}| > |P|$ and traverse the pairs in $P$ and check if they are in $C^{\langle 2 \rangle}$.
 
-
-
-
-
 %%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%  
 \clearpage
 \section{Experimental Results}
 \label{sec:results}
 
-All the experiments in the thesis are performed on a single machine running on 64 bit CentOS 6.5 equipped with 64GB RAM and a dual-socket Intel Xeon E7-4870 v2 clocked at 2.30 GHz where each socket  has 15 cores~(30 in total). The machine also has a Nvidia K40 GPU with 12GB of global memory and 15 SMs each having 192 cores. For the multicore implementations, we used OpenMP and all the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled and GPU parallelization is achieved with CUDA. All the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled.
+All the experiments in the thesis are performed on a single machine running on 64 bit CentOS 6.5 equipped with 64GB RAM and a dual-socket Intel Xeon E7-4870 v2 clocked at 2.30 GHz where each socket  has 15 cores~(30 in total). The machine also has a NVIDIA K40 GPU with 12GB of global memory and 15 SMs each having 192 cores. For the multicore implementations, we used OpenMP and all the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled and GPU parallelization is achieved with CUDA. 
 
-\sloppy
-To measure the efficiency of the proposed algorithms, we used randomly generated automatons\footnote{For each state $s$ and input $x$, $\delta(s,x)$ is randomly assigned to a state $s' \in S$.} with $n  \in \{2000, 4000, 8000\}$ states and ${p \in \{2, 8, 32, 128\}}$ inputs. For each $(n, p)$ pair, we randomly generated $100$ different automatons and executed each algorithm on these automatons. The values in the figures and the tables are the averages of these $100$ executions for each configuration, i.e., algorithm, $n$ and $p$. As slowly synchronizing automata, we also used \v{C}ern\'y automata with $n  \in \{2000, 4000, 8000\}$ states. Since there is only one automaton for each $n$, for more reliable results we execute the algorithms 5 times for each $n$ value.
+To measure the efficiency of the proposed algorithms, we used randomly generated automata\footnote{For each state $s$ and input $x$, $\delta(s,x)$ is randomly assigned to a state $s' \in S$.} with $n  \in \{2000, 4000, 8000\}$ states and ${p \in \{2, 8, 32, 128\}}$ inputs. For each $(n, p)$ pair, we randomly generated $100$ different automata and executed each algorithm on these automata. The values in the figures and the tables are the averages of these $100$ executions for each configuration, i.e., algorithm, $n$ and $p$. 
+
+As slowly synchronizing automata, we also used \v{C}ern\'y automata with $n  \in \{2000, 4000, 8000\}$ states. Since there is only one automaton for each $n$, to reduce the variance on the measured execution times, we execute the algorithms 5 times for each $n$ value and report the averages.
 
 \subsection{Multicore Parallelization of PMF Construction}
 
-For comparison, we implemented Algorithm in Section \ref{algo:greedy}, which is called sequential in this section. As CPU parallelization, we used the algorithms in Section \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} and \ref{sec:BFS-Hybrid-parallel} and tested with 1,2,4,8 and 16 threads. To observe the effect of the indexing formula, we implemented GPU parallelization with basic and memory optimized indexing functions. We called these two implementations as CUDA and CUDA M.O. respectively.
+We sequentially implemented Algorithm in Section \ref{algo:greedy}, which is called {\it sequential} in this section. For the CPU parallelization, we employed the algorithms in Sections \ref{sec:BFS-F2R-parallel}, \ref{sec:BFS-R2F-parallel} and \ref{sec:BFS-Hybrid-parallel}. We used 1, 2, 4, 8 and 16 threads for the experiments. To measure the impact of the proposed indexing formula, we implemented GPU parallelization with basic and memory optimized indexing functions. We called these two implementations as CUDA and CUDA M.O. respectively.
 
-Figure~\ref{fig:f2r-speedup} shows the speedups of our parallel F2R implementation over the sequential baseline~(that has no parallelism). Since F2R uses the same frontier extension mechanism with the sequential baseline, whereas R2F, S2R and S2F employ completely different ones, here we only present the speedup values of F2R. As the figure shows, when $p$ is large, the parallel F2R presents good speedups, e.g., for $p = 128$, the average speedup is $13.4$ with $16$ threads. Furthermore, when compared to the single-thread F2R, the average speedup is $14.9$ with $16$ threads. A performance difference between sequential baseline and single-threaded F2R exists because of the parallelization overhead during the local queue management. Overall, we observed $10\%$ parallelization penalty for F2R on the average over the sequential baseline for all $(n, p)$ pairs. \comment{sertac}{penalty hesaplarken sadece 1 threadle mi karsilastirmak lazim?}
+Figure~\ref{fig:f2r-speedup} shows the speedups of our parallel F2R implementation over the sequential baseline~(that has no parallelism). Since F2R uses the same frontier extension mechanism with the sequential baseline, whereas R2F, S2R and S2F employ completely different ones, here we only present the speedup values of F2R. As the figure shows, when $p$ is large, the parallel F2R presents good speedups, e.g., for $p = 128$, the average speedup is $13.4$ with $16$ threads. Furthermore, when compared to the single-thread F2R, the average speedup is $14.9$ with $16$ threads. A performance difference between sequential baseline and single-threaded F2R exists because of the parallelization overhead during the local queue management. Overall, we observed $10\%$ parallelization penalty for F2R on the average over the sequential baseline for all $(n, p)$ pairs. \comment{sertac}{penalty hesaplarken sadece 1 threadle mi karsilastirmak lazim?} \kkcomm{bu cok sorun degil. boyle olabilir.}
 
 \begin{figure}[ht]
 	\centering
@@ -900,7 +897,7 @@ Figure~\ref{fig:f2r-speedup} shows the speedups of our parallel F2R implementati
 	\subfigure[$n = 8000$]{
 		\includegraphics[height=0.33\textheight]{figs/spF2R_8000.png}
 	}
-	\caption{The speedup of our parallel F2R PMF construction over the sequential PMF construction baseline.}
+	\caption{Speedups obtained with parallel F2R over the sequential PMF construction baseline.}
 	\label{fig:f2r-speedup}
 \end{figure}
 
@@ -962,7 +959,7 @@ For $p$ values smaller than $128$, i.e., $2$, $8$, and $32$, the average speedup
 			\end{tabular}
 		}
 	\end{spacing}
-	\caption{Comparison of the parallel execution times of the PMF construction algorithms.}
+	\caption{Comparison of the parallel execution times~(in seconds) of the PMF construction algorithms.}
 	\label{table:PMF_time}
 \end{table}
 \setlength{\tabcolsep}{6pt}
@@ -970,7 +967,8 @@ For $p$ values smaller than $128$, i.e., $2$, $8$, and $32$, the average speedup
 
 Table~\ref{table:PMF_time} compares the execution times of F2R, R2F, S2R, S2F and Hybrid algorithm for $n \in {2000, 4000, 8000}$, $p \in \{2, 8, 32, 128\}$ and $\{1, 2, 4, 8, 16\}$ threads. An interesting observation is that F2R is consistently faster than R2F for $p = 2$, however, it is slower otherwise. This can be explained by the difference in the number of required iterations to construct PMF: when $p$ is large, the frontier expands very quickly and the PMF is constructed in less iterations, e.g., for $n = 2000$, the PMF is generated in $16$ iterations for $p = 2$, whereas only $7$ iterations are required for $p = 8$. Since each edge will be processed once, the runtime of F2R always increases with $p$, i.e., with the number of edges. However, since the frontier expands much faster, the total number of remaining~(R-)pairs processed by the R2F throughout the process will probably decrease. Furthermore, since when the frontier is large, while traversing the edge list of an R-pair, it is more probable to early terminate the traversal and add the R-pair to the next frontier earlier. Surprisingly,  when $p$ increases, these may yield a decrease in the R2F runtime~(observe the change from $p = 2$ to $p = 8$ in Table~\ref{table:PMF_time}). However, once the performance benefits of early termination are fully exploited, an increase on the R2F runtime with increasing $p$ is more probable since the overall BFS work, i.e., the total number of edges, also increases with $p$~(observe the change from $p = 8$ to $p = 32$ in Table~\ref{table:PMF_time}).
 
-Observing such performance differences for R2F and F2R on automatons with different characteristics, the potential benefit of a Hybrid algorithm in practice is more clear. As Table~\ref{table:PMF_time} shows, the hybrid approach, which is just a combination of F2R and R2F, is almost always faster than employing a pure F2R or a pure R2F BFS-level expansion. Furthermore, we do not need parallelism to observe these performance benefits: the Hybrid approach works better even when a single thread is used at runtime. \footnote{Although one can implement F2R, R2F, and Hybrid sequentially, we do not have their sequential variants. With their OpenMP-based implementations, we expect $20\%$ parallelization overhead for both R2F and Hybrid as in F2R since the parallelization techniques employed in the implementations  are similar.}. For example, when $n = 8000$ and $p = 128$, the Hybrid algorithm is $38$ and $15$ times faster than F2R and R2F, respectively. For the same automaton set, the speedups due to hybridization of the process become $29$ and $16$ with $16$ threads on average.
+Observing such performance differences for R2F and F2R on automata with different characteristics, the potential benefit of a Hybrid algorithm in practice is more clear. As Table~\ref{table:PMF_time} shows, the hybrid approach, which is just a combination of F2R and R2F, is almost always faster than employing a pure F2R or a pure R2F BFS-level expansion. Furthermore, we do not need parallelism to observe these performance benefits: the Hybrid approach works better even when a single thread is used at runtime\footnote{Although one can implement F2R, R2F, and Hybrid sequentially, we do not have their sequential variants. With their OpenMP-based implementations, we expect $20\%$ parallelization overhead for both R2F and Hybrid as in F2R since the parallelization techniques employed in the implementations  are similar.}. For example, when $n = 8000$ and $p = 128$, the Hybrid algorithm is $38$ and $15$ times faster than F2R and R2F, respectively. For the same automaton set, the average speedups due to hybridization are $29$ and $16$ with $16$ threads.
+
 
 \begin{figure}[ht]
 	\centering
@@ -986,13 +984,13 @@ Observing such performance differences for R2F and F2R on automatons with differ
 	\subfigure[$p = 128$]{
 		\includegraphics[height=0.17\textheight]{figs/hybrid_speedup_p128.png}
 	}
-	\caption{The speedups of the Hybrid PMF construction algorithms with $p = 2$~(top left), $8$~(top right), $32$~(bottom left), $128$~(bottom right) and $n \in \{2000, 4000, 8000\}$. The $x$-axis shows the number of threads used for the Hybrid execution.  The values are computed based on the average sequential PMF construction time over $100$ different automatons for each $(n, p)$ pair.}
+	\caption{The speedups of the Hybrid PMF construction algorithms with $p = 2$~(top left), $8$~(top right), $32$~(bottom left), $128$~(bottom right) and $n \in \{2000, 4000, 8000\}$. The $x$-axis shows the number of threads used for the Hybrid execution.  The values are computed based on the average sequential PMF construction time over $100$ different automata for each $(n, p)$ pair.\kkcomm{bu figureleri acalim yatay olarak, rakamlar sigmamis. ya da iki haneli speeduplar elde edelim bundan sonra... cok speedup olunca basa bela oluyor boyle.}}
 	\label{fig:hybrid-speedup}
 \end{figure}
 
-When the Hybrid algorithm is used, the speedups on the PMF generation phase are given in Figure~\ref{fig:hybrid-speedup}. As the figure shows, thanks to parallelism and good scaling of Hybrid~(for large $p$ values), the speedups increase when the number of threads increases. The PMF generation process becomes $25$, $51$, $143$, and $494$ times faster when CUDA implementation with memory optimization used for $2$, $8$, $32$, and $128$ letter automatons, respectively.Even with single thread, i.e., no parallelization, the Hybrid heuristic is $33$ times faster than the sequential algorithm for $p=128$ and $n=8000$.
+When the Hybrid algorithm is used, the speedups on the PMF generation phase are given in Figure~\ref{fig:hybrid-speedup}. As the figure shows, thanks to parallelism and good scaling of Hybrid~(for large $p$ values), the speedups increase when the number of threads increases. With the CUDA implementation, the PMF generation process becomes even much faster: the memory optimized version obtains $25$, $51$, $143$, and $494$ speedup for $2$, $8$, $32$, and $128$ letter automata, respectively, with $n = 8000$ states. 
 
-Since we generate the PMF to find a synchronizing sequence, a more practical evaluation metric would be the performance improvement over the sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \greedyAlgo\ heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for single thread and $16$ thread Hybrid executions. As the results show, even when the sequence construction phase is not parallelized, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.
+Since we generate the PMF to find a synchronizing sequence, a more realistic evaluation metric would be the performance improvement over the whole sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \greedyAlgo\ heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for single thread and $16$ thread Hybrid executions. As the results show, even when the sequence construction phase is not parallelized, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.\kkcomm{bunu anlamadim, aciklayabilir miyiz? bu 2 ve 14 nereden geldi?}
 
 \begin{table}[ht]
 	\center
@@ -1003,18 +1001,17 @@ Since we generate the PMF to find a synchronizing sequence, a more practical eva
 		4000 & 20.84 & 54.27 & 97.60 & 315.45 & 0.50 & 0.46 & 0.62 & 0.68 \\
 		8000 & 24.92 & 51.00 & 143.01 & 493.97 & 0.36 & 0.39 & 0.45 & 0.47 
 	\end{tabular}
-	\caption{The speedups obtained on \greedyAlgo\ algorithm when the memory optimized CUDA implementation of Hybrid PMF construction algorithm is used.}
+	\caption{The speedups obtained on \greedyAlgo\ when the memory optimized CUDA implementation of Hybrid PMF construction algorithm is used.}
 	\label{table:phase-comparison-after}
 \end{table}
 
-As noted before, F2R based PMF construction has $O(pn^2)$ time complexity. R2F based PMF construction, on the other hand, has $O(dpn^2)$ time complexity (where $d$ is the diameter of the pair automaton ${\cal A}$), since states of ${\cal A}$ in the remaining set $R$ will be processed at most $d$ times. In practice, however, R2F based construction (and Hybrid computation which also has $O(dpn^2)$ time complexity since it performs R2F steps) can beat F2R based construction.
+As noted before, F2R-based PMF construction has $O(pn^2)$ time complexity. the R2F-based variant, on the other hand, has $O(dpn^2)$ time complexity (where $d$ is the diameter of the pair automaton ${\cal A}$) since the states of ${\cal A}$ in the remaining set $R$ will be processed at most $d$ times. In practice, however, R2F-based construction (and Hybrid computation which also has $O(dpn^2)$ time complexity since it performs R2F steps) can beat F2R based construction.
 
-We did not perform an extensive study on automata with larger state numbers, since it takes too long with the sequential baseline implementation. For example, sequential PMF generation takes around 2 hours and 30 minutes for an automaton with 40000 states and 128 letters, whereas our Hybrid implementation completes in 2 minutes and 30 seconds.
+We did not perform an extensive study on larger automata since it takes too long with the sequential baseline implementation. For example, sequential PMF generation takes around 2 hours and 30 minutes for an automaton with 40,000 states and 128 letters, whereas our Hybrid implementation generates a sequence in 2 minutes and 30 seconds.
 
 \subsection{Second Phase Parallelization}
 
-As mentioned in Section \ref{sec:second-phase-parallelization}, execution time of second phase is worthy of note for only slowly synchronizing automata. Hence we used \v{C}ern\'y automata with $n \in \{ 2000, 4000, 8000 \}$ to compare our implementations. For CPU parallelization of second phase, we implemented the Algorithm \ref{algo:find-min-parallel} and tested with 1, 2, 4, 8 and 16 threads. For GPU parallelization we implemented the same algorithm with 256 thread per block and 256 block. We also implemented the approach that sorts the set of current pairs as mentioned in Section \ref{sec:implementation}.
-
+As mentioned in Section \ref{sec:second-phase-parallelization}, the execution time of second phase is worthy to take into account for the slowly synchronizing automata. Hence, we used \v{C}ern\'y automata with $n \in \{ 2000, 4000, 8000 \}$ for completeness of the experiments. For CPU parallelization of second phase, we implemented Algorithm \ref{algo:find-min-parallel} and tested with 1, 2, 4, 8 and 16 threads. For GPU parallelization, we implemented the same algorithm with 256 threads per block and 256 blocks. We also implemented the approach that sorts the set of current active states before the process as mentioned in Section \ref{sec:implementation}.
 
 \begin{table}[ht]
 	\center
@@ -1035,11 +1032,11 @@ As mentioned in Section \ref{sec:second-phase-parallelization}, execution time o
 		\multirow{2}{*}{CUDA} & unsorted & 0.684 & 5.514 & 51.280\\
 		& sorted & 0.391 & 1.556 & 9.613
 	\end{tabular}
-	\caption{Execution times of implementations of Algorithm \ref{algo:find-min} and \ref{algo:find-min-parallel}}
+	\caption{The execution times~(in seconds) of  Algorithms \ref{algo:find-min} and \ref{algo:find-min-parallel}.}
 	\label{table:phase-2-time}
 \end{table}
 
-Table \ref{table:phase-2-time} shows that sorting the set of current pairs is a remarkable improvement. Even in sequential implementation we observed $3\times$ to $9.5\times$ speedups.
+Table \ref{table:phase-2-time} shows that sorting the set of current pairs has a remarkable impact on the performance. Even in sequential implementation, we observed $3\times$ to $9.5\times$ speedups.
 
 \subsection{Speeding up the Fastest}
 
@@ -1102,7 +1099,7 @@ Recall that the initial motivation for this work is based on the observation tha
 \textsc{Greedy} is widely used as a performance baseline for the new heuristics in the literature. None of the newer heuristics could actually match the time performance of \textsc{Greedy} and \textsc{Cycle} so far. With the new improved approaches suggested in this thesis, \textsc{Greedy} and \textsc{Cycle} have now become more competitive than they already are.
 
 
-We investigated the efficient implementation and use of modern multicore CPUs and GPUs to scale the performance of synchronizing sequence generation heuristics. We parallelized one of the well-known heuristics \textsc{Greedy}. We mainly focused on the PMF generation phase (which is employed by almost all the heuristics in the literature), since it is the most time consuming part of \textsc{Greedy}. Even with no parallelization, our algorithmic improvements yielded a 33x speedup on \textsc{Greedy} for automatons with 8000 states and 128 inputs. Furthermore, around 494x speedup has been obtained with GPU parallelization for the same automata class.
+We investigated the efficient implementation and use of modern multicore CPUs and GPUs to scale the performance of synchronizing sequence generation heuristics. We parallelized one of the well-known heuristics \textsc{Greedy}. We mainly focused on the PMF generation phase (which is employed by almost all the heuristics in the literature), since it is the most time consuming part of \textsc{Greedy}. Even with no parallelization, our algorithmic improvements yielded a 33x speedup on \textsc{Greedy} for automata with 8000 states and 128 inputs. Furthermore, around 494x speedup has been obtained with GPU parallelization for the same automata class.
 
 First phase of \greedyAlgo\ is common for the well known synchronizing heuristics, such as  \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro}. Although the first phase does not dominates, parallelization techniques can be applied to other heuristics. One can also parallelize second phase of the  slower heuristics to make them more competitive.  
 
