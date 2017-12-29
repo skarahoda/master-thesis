@@ -793,12 +793,13 @@ In this section, we propose three algorithmic enhancements for \greedyAlgo\ algo
 	}
 \end{algorithm}
 
-In theory, Algorithm \ref{algo:greedy-lazy} has the same upper bound with Algorithm \ref{algo:greedy}. For lines 7-13, the time complexity depends on the number of edges which is $O(pn^2)$. The number of iterations do not have an impact on the complexity of lines 7-13. Also there is no lower bound for PMF construction. Picking a shortest merging sequence (lines 14-16) is performed in the same way as in Algorithm \ref{algo:greedy}. Therefore the overall complexity is $O(n^4+ pn^2)$ and $\Omega(n)$. Thus the upper bound does not change but the lower bound decreases.
+In theory, Algorithm \ref{algo:greedy-lazy} has the same upper bound with Algorithm \ref{algo:greedy}. For lines 7-13, the time complexity depends on the number of edges which is $O(pn^2)$. The number of iterations do not have an impact on the complexity of lines 7-13. Also there is no lower bound for PMF construction. Picking a shortest merging sequence (lines 14-16) is performed in the same way as in Algorithm \ref{algo:greedy}. Therefore, the overall complexity is $O(n^4+ pn^2)$ and $\Omega(n)$. Thus the upper bound does not change but the lower bound decreases.
 
-\subsection{Looking Ahead From Current Pair}
+\subsection{Looking Ahead from the Current Pair}
 \label{sec:lookahead}
 
-As noted in Section \ref{sec:lazy}, \greedyAlgo\ algorithm does not need a fully constructed PMF to find a short synchronizing sequence. Table \ref{table:levels} also shows that the average length of selected merging sequences are less than two. Hence, for the most iteration, the algorithm picks the merging sequence with the length of one. The algorithm occasionally picks a merging sequence with longer length, like $h_{max}$. So, Algorithm \ref{algo:greedy-lazy} has to construct PMF upto $h_{max}$ for only occasional cases. In this section, \textit{lookahead} approach is introduced to avoid constructing deep levels of PMF. 
+As Section \ref{sec:lazy} describes, \greedyAlgo\ does not need a full PMF to find a shortest merging sequence at each iteration. Furthermore, Table \ref{table:levels} shows that the average length of a selected merging sequence is less than two. Hence, for most of the iterations, the algorithm picks a length-one merging sequence and it occasionally picks a merging sequence with a longer length, like $h_{max}$. Therefore, although such longer merging sequences are rare, Algorithm \ref{algo:greedy-lazy} still needs to construct PMF up to level $h_{max}$. In this section, a \textit{lookahead} technique is introduced to avoid constructing the deeper levels of PMF. The lookahead approach tries to find a shortest path from $C^{\langle 2 \rangle}$ to $Q$ via $\delta$~(instead of $\delta^{-1}$). Algorithm~\ref{algo:lookahead} and Figure~\ref{fig:lookahead} summarize the basic lookahead process.
+
 
 \begin{algorithm}[ht]
 	\caption{Looking ahead from $C^{\langle 2 \rangle}$}
@@ -850,14 +851,9 @@ As noted in Section \ref{sec:lazy}, \greedyAlgo\ algorithm does not need a fully
 	}
 \end{algorithm}
 
-The lookahead approach tries to find a shortest path from $C^{\langle 2 \rangle}$ to $Q$ via $\delta$~(instead of $\delta^{-1}$). Let $\sigma_{\{  s_i, s_j \}}$ be the shortest path to $\{  s_i, s_j \}$ found by the lookahead PMF
-started from $C^{\langle 2 \rangle}$. Algorithm~\ref{algo:lookahead} and Figure~\ref{fig:lookahead} summarize the basic lookahead process. 
+Let $\sigma_{\{  s_i, s_j \}}$ be the shortest path from $C^{\langle 2 \rangle}$ to $\{  s_i, s_j \}$ found by the lookahead process.  When $\tau(\{s_i,s_j \})$ is undefined for all $\{ s_i,s_j \} \in C^{\langle 2 \rangle}$, performing a lookahead fully and every time will be costly. To reduce the overhead, two constraints are defined; lookahead is allowed only when there are less than {\sc MaxStates}~(line 9) states in $C$ and it is allowed to traverse at most {\sc MaxPairs}~(line 16) pairs. We did not fine tune these parameters and use {\sc MaxStates} $= \log n$ and {\sc MaxPairs} $= n$. 
 
-When $\forall \langle s_i,s_j \rangle \in C^{\langle 2 \rangle}: \tau(\{s_i,s_j \})$ is undefined, applying lookahead approach fully and every time will be costly. To reduce the overhead, two constraints are defined; looking ahead is avoided when there are more than {\sc MaxStates}~(line 9)  states in $C$ and the process is allowed to traverse at most {\sc MaxPairs}~(line 16). We did not fine tune these parameters and use {\sc MaxStates} $= \log n$ and {\sc MaxPairs} $= n$. 
-
-We never reuse the lookahead paths $\sigma(\{ i, j \})$ from the previous iteration (see lines 15-16 in Algorithm~\ref{algo:lookahead}); although, some bookkeeping can be applied. We forget all the lookahead information once the process ends, because we want to continue exploring the forest level-by-level in a BFS fashion to keep the paths being shortest during the course of the overall heuristic. 
-
-
+Although some bookkeeping can be applied, we never reuse the lookahead paths from the previous iteration~(see lines 15-16 in Algorithm~\ref{algo:lookahead}). We forget all the lookahead information once the process ends, because, we want to continue exploring the forest level-by-level in a BFS fashion to keep the paths being shortest during the course of the overall heuristic. \kkcomm{tam anlamadim niye tutmuyoruz, ise yaramaz diye miydi?, bunu aciklayaylim mi} 
 
 \begin{figure}[ht]
 	\centering
@@ -868,10 +864,10 @@ We never reuse the lookahead paths $\sigma(\{ i, j \})$ from the previous iterat
 
 
 
-\subsection{A Smart Way to Find the Intersection of Active Pair and Constructed PMF}
+\subsection{Reverse Intersection of the Active Pairs and PMF}
 \label{sec:smart}
 
-In Algorithm \ref{algo:greedy-lazy} and \ref{algo:lookahead}, the heuristic frequently checks if $\forall \{ s_i,s_j \} \in C^{\langle 2 \rangle}: \tau(\{ s_i,s_j \})$ is undefined or not. Our baseline implementation always traverses the pairs in $C^{\langle 2 \rangle}$ and checks if they are in $P = \{ \{s_i, s_j \} | \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$. Although this is efficient when $|C^{\langle 2 \rangle}|$ is small, $|C^{\langle 2 \rangle}|$ is not small enough at the early stages of the algorithm. Hence we reverse the search when $|C^{\langle 2 \rangle}| > |P|$ and traverse the pairs in $P$ and check if they are in $C^{\langle 2 \rangle}$.
+Algorithms \ref{algo:greedy-lazy} and \ref{algo:lookahead} frequently check if $\tau(\{ s_i,s_j \})$ is undefined or not for all the pairs in $C^{\langle 2 \rangle}$. Our baseline implementation traverses the pairs in $C^{\langle 2 \rangle}$ one by one and checks if they are in $P = \{ \{s_i, s_j \}\ |\ \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$. Although this is efficient when $|C^{\langle 2 \rangle}|$ is small, $|C^{\langle 2 \rangle}|$ is not small enough at the early stages of the algorithm. Hence, we reverse the search when $|C^{\langle 2 \rangle}| > |P|$ and traverse the pairs in $P$ and check if they are in $C^{\langle 2 \rangle}$.
 
 
 
