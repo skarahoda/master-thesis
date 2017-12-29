@@ -523,8 +523,7 @@ Using the frontier set $F$ to construct PMF, as in Algorithms \ref{algo:BFS-step
 
 \subsection{Hybrid Approach}
 \label{sec:BFS-Hybrid-parallel}
-The costs of Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel} are closely related to the size of frontier set $F$ and remaining set $R$ respectively. Initially $R$ is set of all pairs and $F$ is set of all singletons. The size of $R$ decreases by the size of $F$ at each iteration. Our preliminary observations, like in Figure \ref{fig:BFS-vtcomparison}, also indicates that the size of $R$ is bigger than the size of $F$ in early stages, but at later iterations the situation becomes contrary. At each iteration of PMF construction, it is possible to predict the cost of F2R and R2F algorithms which allows us to choose the algorithm with less cost in a hybrid manner at each iteration. 
-
+Per-iteration costs of Algorithms \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R2F-Parallel} are closely related to the frontier set $F$ and remaining set $R$ cardinality, respectively. Initially, $R$ is the set of all pairs and $F$ is the set of all singletons. Hence, $|F|$ is much smaller than $|R|$ for the first iteration. In addition, the cardinality of $R$ decreases by $|F|$ at each iteration. In our preliminary experiments, we measured $|F|$ and $|R|$ for each iteration of F2R and R2F, respectively, as well as the execution time per iteration. Figure \ref{fig:BFS-vtcomparison} shows the results of these experiments. The figure verifies our predictions; the $R$'s cardinality is larger than $F$'s cardinality for the first few iterations. However, for the later iterations, it is exactly the opposite. Fortunately, at each iteration of PMF construction, it is possible to predict the costs of F2R and R2F variants which allows us to choose the variant with less cost. This is what we call the hybrid approach. 
 
 \begin{figure}[ht]
 	\centering
@@ -547,9 +546,9 @@ The costs of Algorithm \ref{algo:BFS-step-F2R-Parallel} and \ref{algo:BFS-step-R
 	\label{fig:BFS-vtcomparison}
 \end{figure}
 
-The idea of hybrid approach in BFS algorithm is introduced by Beamer et al. \cite{Beamer}. The algorithm checks all edges, so determining the cost of each iteration by the number of edge is the most precise technique as in \cite{Beamer}. On a simple graph, counting the edges is an effortless operation. However in our work, the BFS algorithm is applied to a pair automaton ${\cal A}^{\langle 2 \rangle}$ which is not actually created. For each pair it requires $O(p)$ time to count number of edges for F2R. Accordingly, estimating the cost of F2R and R2F from edges takes $O(pn^2)$ which is the same time complexity of the BFS algorithm itself. For R2F, the number of edge per vertex is fixed to alphabet size. For F2R, the number of edge per vertex varies. However the average value is equal to alphabet size, like in R2F. Therefore assuming the number of edge per vertex approximately equals to the alphabet size is a fine acceptance. Thus one can use the number of vertices to predict the cost of the algorithms.
+The hybrid approach idea for traditional BFS-based graph traversal is introduced by Beamer et al. \cite{Beamer}. Their algorithm checks all the edges, so determining the cost of each iteration by the number of edge is the most precise technique as in \cite{Beamer}. In our work, the BFS algorithm is applied to a pair automaton ${\cal A}^{\langle 2 \rangle}$ which is created in a lazy-manner. That is, we do not have the edges at the beginning and we do not generate them unless we really need them. For each pair, it requires $O(p)$ time to count number of edges for F2R. Accordingly, estimating the cost of F2R and R2F from edges takes $O(pn^2)$ which is the same time complexity of the BFS algorithm itself. 
 
-
+For R2F, the number of edges per vertex is fixed to alphabet size. For F2R, the number of edge per vertex varies. However the average value is equal to alphabet size, like in R2F. Therefore assuming the number of edge per vertex approximately equals to the alphabet size is an acceptable approximation. Thus, to simplify the cost estimation, one can use the number of pairs instead of the number of possible transitions to predict the cost of each variant.
 
 \begin{algorithm}[ht]
 	\label{algo:BFS-Hybrid}
