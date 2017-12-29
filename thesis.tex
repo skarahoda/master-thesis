@@ -20,6 +20,9 @@
 \usepackage[section]{placeins}
 
 
+\newcommand{\kkcomm}[1]{{\color{red}{\bf kk: #1}}}
+
+
 \makeatletter
 \AtBeginDocument{%
   \expandafter\renewcommand\expandafter\subsection\expandafter{%
@@ -177,7 +180,7 @@ $ $
 \section{Introduction}
 \label{sec:Intro}
 
-A {\em synchronizing word} $w$ for an automaton $\mathcal{A}$ is a sequence of inputs such that no matter at which state $\mathcal{A}$ currently is, if $w$ is applied, $\mathcal{A}$ is brought to a particular state. Such words do not necessarily exist for every automaton. An automaton with a synchronizing word is called {\em synchronizing automaton}.
+A {\em synchronizing word} $w$ for an automaton $\mathcal{A}$ is a sequence of inputs such that no matter at which state $\mathcal{A}$ currently is, if $w$ is applied, $\mathcal{A}$ is brought to a particular state. Such words do not necessarily exist for every automaton. An automaton with a synchronizing word is called {\em synchronizing}.
 
 Synchronizing automata have practical applications in many areas. For example in model based testing \cite{Broy05} and in particular, for finite state machine based testing \cite{LY96}, test sequences are designed to be applied at a designated state. The implementation under test can be brought to the desired state by using a synchronizing word. Similarly, synchronizing words are used to generate test cases for synchronous circuits with no reset feature \cite{Cho93}. Even when a reset feature is available, there are cases where reset operations are too costly to be applied. In these cases, a synchronizing word can be used as a compound reset operation \cite{JUY15}. Natarajan \cite{Natarajan86} puts forward another surprising application area, part orienters, where a part moving on a conveyor belt is oriented into a particular orientation by the obstacles placed along the conveyor belt. The part is in some unknown orientation initially, and the obstacles should be placed in such a way that, regardless of the initial orientation of the part, the sequence of pushes performed by the obstacles along the way makes sure that the part is in a unique orientation at the end. Volkov \cite{Volkov08} presents more examples for the applications of synchronizing words together with a survey of theoretical results related to synchronizing automata.
 
@@ -193,36 +196,36 @@ Due to the hardness results given above for finding shortest synchronizing words
 The fastest synchronizing heuristics, \textsc{Greedy} and \textsc{Cycle}, are also the earliest heuristics that appeared in the literature. Therefore \textsc{Greedy} and \textsc{Cycle} are usually considered as a baseline to evaluate the quality and the performance of new heuristics. Newer heuristics do generate shorter synchronizing words, but by performing a more complex analysis, which implies a substantial increase on the runtime. The time performance of \textsc{Greedy} and \textsc{Cycle} are unmatched to date. 
 
 
-In this work we investigate the use of modern multicore CPU and GPUs to scale the performance of synchronizing heuristics. We consider the \textsc{Greedy} algorithm to start with, as it is one of the two cheapest synchronizing heuristics (in practice as well \cite{RS15}), known to produce shorter sequences than \textsc{Cycle} \cite{RS15}, and has been widely used as a baseline to evaluate the quality and speed of more advanced heuristics.  To the best of our knowledge, this is the first work towards parallelization of  synchronizing heuristics. Although, a parallel approach for constructing a synchronizing sequence for a {\em partial}  machines is proposed in \cite{Uraz}, the method proposed in \cite{Uraz} is not exact (in the sense that it may fail to find a synchronizing sequence even if one exists) and also it is not a polynomial
-time algorithm.
+In this work we have two focus: First, we investigate the use of modern multicore CPU andGPUs to scale the performance of synchronizing heuristics. We consider the \textsc{Greedy} algorithm to start with, as it is one of the two cheapest synchronizing heuristics (in practice as well \cite{RS15}), known to produce shorter sequences than \textsc{Cycle} \cite{RS15}, and has been widely used as a baseline to evaluate the quality and speed of more advanced heuristics.  To the best of our knowledge, this is the first work towards parallelization of  synchronizing heuristics. Although, a parallel approach for constructing a synchronizing sequence for {\em partial}  machines \kkcomm{define partial} has been proposed in \cite{Uraz}, it is not exact (in the sense that it may fail to find a synchronizing sequence even if at least one exists). Furthermore, it is not a polynomial time algorithm.
 
 All synchronizing heuristics consist of a preprocessing phase, followed by reset word generation phase. As presented in this thesis, our initial experiments revealed that the preprocessing phase dominates the runtime of the overall algorithm for \textsc{Greedy}. We also discovered that the preprocessing computes more information than reset word generation phase needs.  To speed up Greedy without sacrificing the
 quality of the synchronizing words generated by the heuristic, we propose two main techniques that speedup \greedyAlgo . First, we focused on parallelization of \textsc{Greedy}. Second, we propose a lazy execution of the preprocessing, by postponing the preparation of the required information until it is to be used in the reset word generation phase. We suggest other optimizations as well for the implementation of these heuristics. 
 
-The rest of the thesis is organized as follows: In Section~\ref{sec:Preliminaries}, the notation is given, and synchronizing sequences are formally defined. We give the details of Eppstein's {\sc Greedy} construction algorithm in Section \ref{sec:greedy}. The parallelization approach together with implementation details are described in Section \ref{sec:parallel}.
-In Section \ref{sec:speedup}, algorithmic speedups that avoid redundant computations are introduced. Section \ref{sec:results} presents the experimental results and Section~\ref{sec:conclusion} concludes the paper.
+The rest of the thesis is organized as follows: In Section~\ref{sec:Preliminaries}, the notation used in the thesis is introduced, and synchronizing sequences are formally defined. We give the details of Eppstein's {\sc Greedy} construction algorithm in Section \ref{sec:greedy}. The parallelization approach together with the implementation details are described in Section \ref{sec:parallel}. In Section \ref{sec:speedup}, algorithmic optimizations which avoid most of the redundant computations in the original heuristic are introduced. Section \ref{sec:results} presents the experimental results and Section~\ref{sec:conclusion} concludes the thesis.
 
 \clearpage
 \section{Preliminaries}
 \label{sec:Preliminaries}
-FSMs are mathematical abstractions for real word systems. When an FSM gets an input, it moves from a state to another with an output. Since synchronization sequences consider only destination state, the output is not in the scope of this work. Therefore, we can consider an FSM as an automata with a simple transition function and without an output.
+FSMs are mathematical abstractions for real word systems. When an FSM gets an input, it moves from one state to another with an output. Since synchronization sequences consider only the destination state, the output is not in the scope of this work. Therefore, we can consider an FSM as an automata with a simple transition function and without an output.
 
-When an {\em automaton} is complete and deterministic, it is defined by a triplet ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}). $\delta : S \times \Sigma \rightarrow S$ is a transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv} shows an example automaton ${\cal A}$ with 4 states and 2 inputs using graphical notation.
+When an automaton is complete and deterministic, it is defined by a triplet ${\cal A}=(S, \Sigma, \delta)$  where $S = \{1, 2, \ldots, n\}$ is a finite set of $n$ states, $\Sigma$ is a finite alphabet consisting of $p$ input symbols (or simply {\em letters}), and $\delta : S \times \Sigma \rightarrow S$ is a deterministic transition function. If the automaton ${\cal A}$ is at a state $s$ and if an input $x$ is applied, then ${\cal A}$ moves to the state $\delta(s,x)$. Figure~\ref{fig:inv}~(left) shows an example automaton ${\cal A}$ with 4 states and 2 input.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figs/inverse.pdf}
-	\caption{A synchronizable automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).}
+	\caption{A synchronizing automaton ${\cal A}$~(left), and the data structures to store and process the transition function $\delta^{-1}$  in memory (right).
+	For each state $s \in S$ and each input $x \in \Sigma$, {\tt ids}[{\tt ptrs}[$s$] $\cdots$ {\tt ptrs}[$s+1$] $ - 1$] store the ids for all states $s'$ such that $\delta(s',x) = s$.}
 	\label{fig:inv}
 \end{figure}
 
 An element of the set $\Sigma^\star$ is called an {\em input sequence} (or simply {\em word}). $|w|$ denotes the length of $w$, and $\varepsilon$ expresses the empty word. The transition function $\delta$ can be extended to a set of states and to a word in the usual way. Assuming $\delta(s,\varepsilon)=s$, for a word $w \in \Sigma^\star$ and a letter $x \in \Sigma$, $\delta(s,xw) = \delta(\delta(s,x),w)$. Likewise, for a set of states $S' \subseteq S$, $\delta(S',w) = \{ \delta(s,w) | s \in S'\}$.
 
-The inverse of the transition is also a well defined function; $\delta^{-1}(s,x)$ denotes the set of states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.
+The inverse of the transition is also a well defined function; $\delta^{-1}(s,x)$ denotes the set of states with a transition to state $s$ with input $x$. Formally, $\delta^{-1}(s,x) = \{ s' \in S | \delta(s',x)= s\}$.  Figure~\ref{fig:inv}~(right) shows the data structure used to store the inverse transition function for the example automata.
 
-Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality two. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called as \textit{singleton}, otherwise called as \textit{pair}. 
+Let ${\cal A}=(S, \Sigma, \delta)$, $C \subseteq S$ and $C^{\langle 2 \rangle} = \{ \{ s_i, s_j \}| s_i,s_j \in C \}$ be set of multisets  with cardinality two. For $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$, if $s_i=s_j$ then it is called a \textit{singleton}, otherwise called a \textit{pair}. 
 
-An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called the \textit{pair automaton}. For a pair automaton, the set of inputs are the same and the transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. 
+An automaton which is produced from the set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called the \textit{pair automaton}. 
+For a pair automaton, the set of inputs is the same and the transition function is $\delta^{\langle 2 \rangle}(\{ s_i,s_j \},x) = \{ \delta(s_i,x), \delta(s_j,x) \}$. 
 
 \begin{figure}[ht]
 	\centering
@@ -234,22 +237,24 @@ An automaton which produced from set of pairs; ${\cal A}^{\langle 2 \rangle}=(S^
 Let $C \subseteq S$ and $w \in \Sigma^*$, when cardinality of $\delta(C,w)$ is one then $w$ is a \textit{merging sequence} for $C$ and $C$ is called \textit{mergeable}. When $C=S$, $w$ is called a \textit{reset word} of automaton and the automaton is synchronizable. As shown by \cite{Eppstein90}, deciding if an automaton is synchronizing can be performed in time $O(pn^2)$ by checking if there exists a merging word for $\{ s_i, s_j \}$, for all  $\{ s_i, s_j \} \in S^{\langle 2 \rangle}$. 
 Recently, Berlinkov \cite{Berlinkov2016} showed that there exist an algorithm that decides on synchronizability in linear expected time in $n$. 
 
+\kkcomm{define Cerny automata here}
 
 \clearpage
 \section{Eppstein's \greedyAlgo\ Algorithm}
 \label{sec:greedy}
-In this section, Eppstein's \greedyAlgo\ algorithm is introduced. After that a set of preliminary experiments and analysis are presented. These analysis leads us to improve the speed of the algorithm.
+
+The \greedyAlgo\ algorithm is one of the fastest algorithms among the reset word generation heuristics in the literature. The correctness of the algorithm is based on the following proposition.
 
 \begin{proposition}
 	\label{prop:synchronizable}
-	An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizable iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
+	An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizing iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$.
 \end{proposition}
 
-The \greedyAlgo\ algorithm is one of the fastest algorithms among the reset word generation heuristics in the literature. The idea of the algorithm comes from Proposition \ref{prop:synchronizable}. The algorithm uses the shortest merging sequences of pairs to find a short reset word. Like most of the algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo\ has two main phases. At the first phase it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, it means that the automaton is not mergeable. Otherwise, the algorithm continues with the second phase.
+\noindent \greedyAlgo\  uses the shortest merging sequences of pairs to find a short reset word. Like most of the algorithms mentioned in Section \ref{sec:Intro}, \greedyAlgo\ has two  phases. In the first phase, it finds the shortest merging sequences for all pairs. If there is a pair which is not mergeable, due to Proposition~\ref{prop:synchronizable}, the automaton is not synchronizing. Otherwise, the algorithm continues with the second phase.
 
-The merging sequences of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called \textit{pairwise merging function} (PMF) for ${\cal A}$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e., $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique. To find all the shortest merging sequences, breadth first search algorithm can be used. By using the inverse of transition function and starting from $\{ s_i, s_i \}$ singletons, all mergeable pairs and their shortest merging sequences can be found via an iterative process. Let $p=|\Sigma|$ and $n=|s|$; in worst case, the algorithm traverses all edges, i.e., $p$ letters of each $n(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of the second phase is $O(pn^2)$. 
+The merging sequences of pairs are stored in a function $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$, which is called the \textit{pairwise merging function} (PMF) for ${\cal A}$. If $\{ s_i, s_j \}$ is mergeable, then $\tau(\{ s_i, s_j \})$ is the merging sequence, otherwise it is undefined. Note that PMF does not have to be unique, i.e., $\tau(\{ s_i, s_j \})$ may differ, however  $|\tau(\{ s_i, s_j \})|$ is unique and the shortest possible. To find all the shortest merging sequences, a breadth first search can be initiated over the pair automata. By using the inverse of transition function and starting from $\{ s_i, s_i \}$ singletons, all mergeable pairs and their shortest merging sequences can be found. Let $p=|\Sigma|$ and $n=|s|$; in worst case, the algorithm traverses all edges, i.e., $p$ letters of each $n(n-1)$ pairs and $n$ singletons should be checked. Therefore the complexity of the first phase is $O(pn^2)$. 
 
-Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs, which is called \textit{frontier set} ($F$). The level of a frontier set refers the length of the corresponding merging sequence. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are placed in the root level, level 0, of BFS. \textit{Remaining set} ($R$) is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS}, new frontier and remaining sets are computed for next level. 
+Algorithm \ref{algo:BFS} keeps the track of most recently computed mergeable pairs via a list, which is called \textit{frontier set} ($F$). The level of a frontier set refers the length of the corresponding merging sequences inside. Since $\tau(\{ s_i, s_i \})=\epsilon$, singletons are placed in the root level, level 0, of BFS. The \textit{rremaining set} ($R$) is the set of pairs whose merging sequences are not computed yet. At each iteration of Algorithm \ref{algo:BFS}, new frontier and remaining sets are computed for next level. 
 
 
 \begin{algorithm}[ht]
@@ -273,10 +278,10 @@ Algorithm \ref{algo:BFS} keeps track of most recent computed mergeable pairs, wh
 
 \begin{proposition}
 	\label{prop:merging}
-	Let $\{ s_i,s_j \}$ be a pair in $S^{\langle 2 \rangle}$. When a letter $x \in \Sigma$ is applied to the $\{ s_i,s_j \}$, if the resulting pair has merging sequence $w \in \Sigma^*$, then $xw$ is a merging sequence for the $\{s_i,s_j \}$.
+	Let $\{ s_i,s_j \}$ be a pair in $S^{\langle 2 \rangle}$. If $w \in \Sigma^*$ is a merging sequence for $\delta(\{ s_i,s_j \}, x)$ then $xw$ is a merging sequence for $\{s_i,s_j \}$.
 \end{proposition}
 
-Thanks to the inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} constructs PMF from the most recent frontier set. At line 3-4, the algorithm searches the pairs which can reach the pairs of frontier set by applying one letter. When the algorithm finds a pair whose merging sequence is not defined, it marks the pair as a pair of frontier set for the next iteration and sets the merging sequence for the pair. Since the algorithm computes the PMF of the remaining set by using the frontier set, it is called \textit{frontier to remaining} (F2R). 
+Thanks to the inverse of transition function and Proposition \ref{prop:merging}, Algorithm \ref{algo:BFS-step-F2R} constructs PMF from the most recent frontier set. At lines 3-4, the algorithm searches the pairs which can reach the frontier set pairs by applying a single letter. When the algorithm finds such a pair whose merging sequence has not been defined yet, it marks the pair as the next frontier set's pair for the next iteration and sets its merging sequence. Since the algorithm computes the PMF of the remaining set by using the frontier set, it is called \textit{frontier to remaining} (F2R). 
 
 \begin{algorithm}[ht]
 	\caption{{BFS\_step (F2R)}}
@@ -304,9 +309,11 @@ Thanks to the inverse of transition function and Proposition \ref{prop:merging},
 	let $R'$ be $R \setminus F'$;
 \end{algorithm}
 
-When the first phase is completed, Algorithm \ref{algo:greedy} checks if the automaton is synchronizable or not in $O(n^2)$ (line 2,3). Then it finds a reset word in iterative manner. It initializes the \textit{set of active states} ($C$) as the set of all states and the initial reset word as empty. At each iteration, it selects the shortest merging sequence of all active pairs, appends it to reset word, and finally updates the set of active states by applying the selected merging sequence. This operation is repeated until only one active state is left. At each iteration, the merging sequence is applied, so the cardinality of $C$ decreases. Therefore at most $n-1$ iterations are performed. At line 7, the algorithm finds the active pair with a minimum length of the merging sequence among active pairs, which is $O(n^2)$ per iteration. Line 8 takes constant time. The length of the merging sequence can be at most $n^2$. Therefore the time complexity of line 9 is $O(n^3)$ for one iteration. Overall the second phase takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. 
+When the first phase is completed, Algorithm \ref{algo:greedy} first checks if the automaton is synchronizing or not in $O(n^2)$ (lines 2-3). It then initializes the \textit{set of active states} ($C$) as the set of all states and the initial reset word as empty. After that, iteratively, it selects the shortest merging sequence of all active pairs, appends it to reset word, and finally updates the set of active states by applying the selected merging sequence. This operation is repeated until only a single active state is left. 
 
-The upper bounds of the phases can be computed in a slightly different way. For a synchronizable automaton, first phase is $\Omega(n^2)$ since it finds a merging sequence for all pairs. At the best case, phase two takes a merging sequnence with length of one, which is also a reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of the second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. Since there is a huge gap between the time complexity of the best case and the worst case, we extended our observations with the empirical results. At Section \ref{sec:greedy-analysis}, bottleneck of the algorithm is introduced with experimental analysis.
+At each iteration, the merging sequence is applied, so the cardinality of $C$ decreases. Therefore at most $n-1$ iterations are performed. At line 7, the algorithm finds the active pair with the shortest merging sequence which takes $O(n^2)$ per iteration. Line 8 takes constant time. The length of each merging sequence can be at most $n^2$. Therefore the time complexity of line 9 is $O(n^3)$ for a single iteration. Overall, the second phase takes $O(n^4)$ and Algorithm \ref{algo:greedy} requires $O(pn^2 + n^4)$ time. 
+
+The upper bounds of the phases can be computed in a slightly different way. For a synchronizing automaton, the first phase is $\Omega(n^2)$ since it finds a merging sequence for all pairs. At best, phase two takes a merging sequence with length of one, which is also a reset word. Then the algorithm applies the merging sequence to all states. Therefore, the lower bound of the second phase is $\Omega(n)$. Thus Algorithm \ref{algo:greedy} has $O(pn^2 + n^4)$ and $\Omega(n^2)$ time complexity. Since there is a huge gap between the best  and the worst case complexities, we extended our observations with the empirical results. In the next subsection, the bottleneck of the algorithm is introduced with a thorough experimental analysis.
 
 \begin{algorithm}[ht]
 	\caption{Eppstein's \greedyAlgo\ algorithm}
@@ -362,8 +369,7 @@ The upper bounds of the phases can be computed in a slightly different way. For 
 \subsection{Analysis on \greedyAlgo}
 \label{sec:greedy-analysis}
 
-
-In Section \ref{sec:greedy}, \greedyAlgo\ algorithm  is introduced and its two phases are explained. Complexity of the PMF construction, the first phase, is $O(pn^2)$. For most of the cases $p$ is too small when compared to $n$. So, the complexity of the second phase, $O(n^4)$, dominates the first phase in theory. To analyze the algorithm, we performed experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition, we used \v{C}ern\'y automata \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. In Table \ref{table:phase-comparison}, experiments from 1200 randomly generated automata shows that the execution time of the second phase does not dominate the overall time of the algorithm.
+As discussed in Section \ref{sec:greedy}, the time complexity of \greedyAlgo\ is $O(pn^2 + n^4)$. For most of the cases, $p$ is too small when compared to $n$. Hence, the complexity of the second phase, $O(n^4)$, dominates the first phase in theory. To analyze the algorithm, we performed experiments on 100 randomly generated automata for each  $p \in \{2, 8, 32, 128\}$ letters and  $n \in \{2000, 4000, 8000\}$ states. In addition, we used \v{C}ern\'y automata \kkcomm{we need the definition in the previous section} \cite{cerny} for $n \in \{2000, 4000, 8000\}$ states. In Table \ref{table:phase-comparison}, experiments from 1200 randomly generated automata show that the execution time of the second phase does not dominate the overall time of the algorithm for random automata.
 
 \begin{table}[ht]
 	\center
@@ -382,7 +388,7 @@ In Section \ref{sec:greedy}, \greedyAlgo\ algorithm  is introduced and its two p
 	\label{table:phase-comparison}
 \end{table}
 
-To understand the behavior of the algorithm, we extended our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, the length of the merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence. For instance, when automata with 8000 states and 128 letters are considered, the lengths of merging sequences in PMF are at most 3, not 64000000. Another observation is that the second phase tends to pick shorter length of merging sequences. For example, when we take an automaton with 8000 states and 2 letters, the longest merging sequence in PMF has the length 16.9. Second phase uses only merging sequences with length 12.1 and less. Thus, the merging sequences of almost 30\% of nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
+To understand the behavior of the algorithm, we extended our experiments by analyzing the structure of PMF. While computing time complexity of the algorithm, the length of the merging sequence is at most $n^2$. However, Table \ref{table:levels} shows that $n^2$ is loose bound for the length of merging sequence. For instance, when automata with 8000 states and 128 letters are considered, the lengths of merging sequences in PMF are at most 3, not 64000000. Another observation is that the second phase tends to pick shorter length of merging sequences. For example, when we take an automaton with 8000 states and 2 letters, the longest merging sequence in PMF has the length 16.9. The second phase uses only merging sequences with length 12.1 and less. Thus, the merging sequences of almost 30\% of the nodes are not necessarily computed (see Figure \ref{fig:nodes-at-levels}).
 
 \begin{table}[ht]
 	\center
@@ -419,7 +425,7 @@ To understand the behavior of the algorithm, we extended our experiments by anal
 \end{figure}
 
 
-With the help of experiments, we observed that the execution time of PMF construction phase dominates the \greedyAlgo\ algorithm. Therefore, we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. We also noticed that all information from the first phase is not used in the second phase. Furthermore, several algorithmic improvements that speedup the first phase are presented in Section \ref{sec:speedup}.
+With these experiments, we observed that the execution time of PMF construction phase in general dominates the \greedyAlgo\ algorithm except some special automata classes such as \v{C}ern\'y. Therefore, we focused on parallelization of PMF construction, which is explained in Section \ref{sec:parallel}. We also noticed that not all information from the first phase is used in the second phase. Based on these observations, various algorithmic improvements that make \greedyAlgo\  much faster are presented in Section \ref{sec:speedup}. But first, we will focus on its parallelization in the next section.
 
 
 %%%%%%%%%%%%% PARALLEL %%%%%%%%%%%%%%  
@@ -681,7 +687,7 @@ Table \ref{table:phase-2-comparison} shows that Algorithm \ref{algo:find-min} do
 \subsection{Implementation Details}\label{sec:implementation}
 To store and utilize the  $\delta^{-1}(s,x)$ for all $x \in \Sigma$ and $s \in S$, we employ the data structures in Fig.~\ref{fig:inv}~(right). For each symbol $x \in \Sigma$, we used two arrays ${\tt ptrs_x}$ and ${\tt js_x}$ where the former is of size $n + 1$ and the latter is of size $n$. For each state $s \in S$, ${\tt ptrs_x}[s]$ and ${\tt ptrs_x}[s+1]$ are the start~(inclusive) and end~(exclusive) pointers to two ${\tt js_x}$ entries.  The array ${\tt js_x}$ stores the ids of the states $\delta^{-1}(s,x)$ in between ${\tt js_x}$[{$\tt ptrs_x$}[$s$]]  and ${\tt js_x}$[{$\tt ptrs_x$}[$s+1$] - 1]. This representation has a low memory footprint. Furthermore, we access the entries in the order of their array placement  in our implementation hence, it is also good for spatial locality. We also sorted the set of current pairs by their indexes before the line 2 in Algorithm \ref{algo:find-min-parallel} since it is better for spatial locality.
 
-The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all the algorithms in the paper uses it and this improvement will not have change their relative performance.
+The memory complexity of the algorithms investigated in this study is $O(n^2)$. For each pair of states, we need to employ an array to store the length of the shortest merging sequence. To do that one can allocate an array of size $n^2$, Fig.~\ref{fig:mem}~(left), and given the array index $\ell = (i-1) \times n + j$ for a state pair $\{s_i, s_j\}$ where $1  \leq i \leq j \leq n$, she can obtain the state ids by $i = \lceil{\frac{\ell}{n}} \rceil$  and $j =\ell - ((i -1) \times n)$. This simple approach effectively uses only the half of the array since for a state pair $\{s_i, s_j\}$, a redundant entry for $\{s_j, s_i\}$ is also stored. In our implementation, Fig.~\ref{fig:mem}~(right), we do not use redundant locations. For an index  $\ell = \frac{i \times (i+1)}{2} + j$ the state ids can be obtained by $i = \lfloor \sqrt{1 + 2\ell} - 0.5\rfloor$ and $j = \ell - \frac{i \times (i+1)}{2}$. Preliminary experiments show that this approach, which does not suffer from the redundancy,  also have a positive impact on the execution time. That being said, all the algorithms in the thesis uses it and this improvement will not have change their relative performance.
 
 \begin{figure}
 	\centering
@@ -864,7 +870,7 @@ In Algorithm \ref{algo:greedy-lazy} and \ref{algo:lookahead}, the heuristic freq
 \section{Experimental Results}
 \label{sec:results}
 
-All the experiments in the paper are performed on a single machine running on 64 bit CentOS 6.5 equipped with 64GB RAM and a dual-socket Intel Xeon E7-4870 v2 clocked at 2.30 GHz where each socket  has 15 cores~(30 in total). The machine also has a Nvidia K40 GPU with 12GB of global memory and 15 SMs each having 192 cores. For the multicore implementations, we used OpenMP and all the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled and GPU parallelization is achieved with CUDA. All the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled.
+All the experiments in the thesis are performed on a single machine running on 64 bit CentOS 6.5 equipped with 64GB RAM and a dual-socket Intel Xeon E7-4870 v2 clocked at 2.30 GHz where each socket  has 15 cores~(30 in total). The machine also has a Nvidia K40 GPU with 12GB of global memory and 15 SMs each having 192 cores. For the multicore implementations, we used OpenMP and all the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled and GPU parallelization is achieved with CUDA. All the codes are compiled with {\tt gcc 4.9.2} with the {\tt -O3} optimization flag enabled.
 
 \sloppy
 To measure the efficiency of the proposed algorithms, we used randomly generated automatons\footnote{For each state $s$ and input $x$, $\delta(s,x)$ is randomly assigned to a state $s' \in S$.} with $n  \in \{2000, 4000, 8000\}$ states and ${p \in \{2, 8, 32, 128\}}$ inputs. For each $(n, p)$ pair, we randomly generated $100$ different automatons and executed each algorithm on these automatons. The values in the figures and the tables are the averages of these $100$ executions for each configuration, i.e., algorithm, $n$ and $p$. As slowly synchronizing automata, we also used \v{C}ern\'y automata with $n  \in \{2000, 4000, 8000\}$ states. Since there is only one automaton for each $n$, for more reliable results we execute the algorithms 5 times for each $n$ value.
@@ -1085,7 +1091,7 @@ Recall that the initial motivation for this work is based on the observation tha
 \section{Conclusion and Future Works}
 \label{sec:conclusion}
 
-\textsc{Greedy} is widely used as a performance baseline for the new heuristics in the literature. None of the newer heuristics could actually match the time performance of \textsc{Greedy} and \textsc{Cycle} so far. With the new improved approaches suggested in this paper, \textsc{Greedy} and \textsc{Cycle} have now become more competitive than they already are.
+\textsc{Greedy} is widely used as a performance baseline for the new heuristics in the literature. None of the newer heuristics could actually match the time performance of \textsc{Greedy} and \textsc{Cycle} so far. With the new improved approaches suggested in this thesis, \textsc{Greedy} and \textsc{Cycle} have now become more competitive than they already are.
 
 
 We investigated the efficient implementation and use of modern multicore CPUs and GPUs to scale the performance of synchronizing sequence generation heuristics. We parallelized one of the well-known heuristics \textsc{Greedy}. We mainly focused on the PMF generation phase (which is employed by almost all the heuristics in the literature), since it is the most time consuming part of \textsc{Greedy}. Even with no parallelization, our algorithmic improvements yielded a 33x speedup on \textsc{Greedy} for automatons with 8000 states and 128 inputs. Furthermore, around 494x speedup has been obtained with GPU parallelization for the same automata class.
@@ -1098,7 +1104,7 @@ The techniques suggested in this thesis become more effective as the size of the
 
 Note that other synchronizing heuristics existing in the literature such as \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro} cannot directly benefit from the lazy computation and further techniques. 
 These heuristics require shortest merging sequence information for many pairs of states, if not for all. Due to this property, a large part of, or the entire, BFS forest
-will have to be constructed. Therefore, the underlying intuition for  \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro} will need to be changed in order for them to take advantage of the algorithmic improvements that the thesis proposed. Modifying the underlying intuition for \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro} so that they can also benefit from the techniques suggested in this paper can be considered as a future work.
+will have to be constructed. Therefore, the underlying intuition for  \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro} will need to be changed in order for them to take advantage of the algorithmic improvements that the thesis proposed. Modifying the underlying intuition for \textsc{SynchroP}, \textsc{SynchroPL}, and \textsc{FastSynchro} so that they can also benefit from the techniques suggested in this thesis can be considered as a future work.
 
 
 \clearpage
