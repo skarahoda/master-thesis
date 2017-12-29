@@ -754,7 +754,7 @@ In this section, we propose three algorithmic enhancements for \greedyAlgo\ algo
 \subsection{Lazy PMF Construction}
 \label{sec:lazy}
 
-\greedyAlgo\ algorithm uses PMF to pick the shortest merging sequence among the set of current pairs ($C^{\langle2\rangle}$). However, Table \ref{table:levels} shows that the algorithm does not need to construct all PMF. It is redundant to compute the merging sequences whose length is longer than $h_{max}$. As the first improvement, we generated PMF in a lazy way and combined the two phases. Algorithm \ref{algo:greedy-lazy} searches the shortest merging sequence in PMF which is also the shortest merging sequence of a pair in $C^{\langle2\rangle}$. The \greedyAlgo\ algorithm uses partial PMF which initially has only the merging sequences of the singletons. At each iteration, PMF is computed when it is needed. The algorithm checks all pairs in $C^{\langle2\rangle}$ to find the shortest merging sequence. If it cannot find the merging sequence then PMF construction phase is executed. It computes until a pair in $C^{\langle2\rangle}$ is found. After that it applies the merging sequence to all active pairs and process the next iteration. Note that BFS algorithm is used for PMF construction. Hence the length of not computed merging sequences cannot be shorter than any other computed merging sequence in PMF.
+\greedyAlgo\ algorithm uses PMF to pick a shortest merging sequence among the set of current pairs ($C^{\langle2\rangle}$). However, Table \ref{table:levels} shows that the algorithm does not need to construct the whole PMF. It is redundant to compute the merging sequences whose length is longer than $h_{max}$. As the first improvement, we generated PMF in a lazy way and combined the two phases into a single one. Algorithm \ref{algo:greedy-lazy} searches a shortest merging sequence in PMF which is also a shortest merging sequence of a pair in $C^{\langle2\rangle}$. \greedyAlgo\ uses the partial PMF which initially contains only the merging sequences of the singletons. At each iteration, a new part of PMF is computed when it is needed. The algorithm checks all pairs in $C^{\langle2\rangle}$ to find a shortest merging sequence. If it does not find a merging sequence a PMF construction phase is initiated. This lazy process continues until a pair in $C^{\langle2\rangle}$ is found. After that it applies the merging sequence to all active pairs and continues with the next iteration. Note that the PMF construction is performed in a BFS-manner. Hence, the length of unidentified merging sequences cannot be shorter than the identified merging sequence in PMF.
  
 \begin{algorithm}[ht]	
 	\caption{\greedyAlgo\ algorithm with lazy PMF construction}
@@ -786,14 +786,14 @@ In this section, we propose three algorithmic enhancements for \greedyAlgo\ algo
 			} 		
 		}
 		find a pair $\{ s_i, s_j \} \in C^{\langle 2 \rangle}$ 
-		with minimum $|\tau(\{ s_i,s_j \})|$ among all pairs 
+		with a minimum $|\tau(\{ s_i,s_j \})|$ among all pairs 
 		in $C^{\langle 2 \rangle}$\;
 		$\Gamma = \Gamma \; \tau(\{ s_i, s_j \})$\;
 		$C = \delta(C,\tau(\{ s_i,s_j\}))$;
 	}
 \end{algorithm}
 
-Algorithm \ref{algo:greedy-lazy} has the same upper bound compared to Algorithm \ref{algo:greedy}. For line 7-13, the time complexity depends on the number of edges, $O(pn^2)$. The number of iterations does not effect the upper bound of Line 7-13. Also there is no lower bound for PMF construction part. Picking the shortest merging sequence (Line 14-16) is the same as in Algorithm \ref{algo:greedy}. Therefore the complexity is $O(n^4+ pn^2)$ and $\Omega(n)$. Thus the upper bound does not change but the lower bound decreases.
+In theory, Algorithm \ref{algo:greedy-lazy} has the same upper bound with Algorithm \ref{algo:greedy}. For lines 7-13, the time complexity depends on the number of edges which is $O(pn^2)$. The number of iterations do not have an impact on the complexity of lines 7-13. Also there is no lower bound for PMF construction. Picking a shortest merging sequence (lines 14-16) is performed in the same way as in Algorithm \ref{algo:greedy}. Therefore the overall complexity is $O(n^4+ pn^2)$ and $\Omega(n)$. Thus the upper bound does not change but the lower bound decreases.
 
 \subsection{Looking Ahead From Current Pair}
 \label{sec:lookahead}
