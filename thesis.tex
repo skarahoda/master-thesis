@@ -157,11 +157,11 @@ $ $
 \textbf{Acknowledgements}
 \end{center}
 
-I would like to state my gratitude to my supervisors, H\"{u}sn\"{u} Yenig\"{u}n and Kamer Kaya for everything they have done for me, especially for his invaluable guidance, limitless support and understanding.
+I would like to state my gratitude to my supervisors, H\"{u}sn\"{u} Yenig\"{u}n and Kamer Kaya for everything they have done for me, especially for their invaluable guidance, limitless support and understanding.
 
 The financial support of Sabanci University is gratefully acknowledged.
 
-I would like to thank TUBITAK for the financial support provided.
+I would like to thank TUBITAK 114E569 project for the financial support provided.
 
 
 \clearpage
@@ -264,13 +264,13 @@ Communication between multiprocessors can be achieved through the
 processors in all multiprocessors~\cite{nvidia}.
 
 In the software level, the CUDA model is a collection of threads
-running in parallel.  The programmer decides on the number of threads
+running in parallel.  The programmer decides the number of threads
 to be launched.  A collection of threads, called a \textit{warp},
-running simultaneously (on a multiprocessor).  If the number of
+run simultaneously (on a multiprocessor).  If the number of
 threads is more than the warp size then these threads are time-shared
-internally on the multiprocessor.  At a given time, a \textit{block}
-of threads runs on a multiprocessor.  Therefore a threads in block may
-have bundled into several number of warps.  Each thread executes a
+internally on the multiprocessor.  At any given time, a \textit{block}
+of threads runs on a multiprocessor.  Therefore threads in a block may
+have bundled into several warps.  Each thread executes a
 piece of code called a \textit{kernel}.  The kernel is the core code
 to be executed on a multiprocessor.  During its execution, a thread
 $t_i$ is given a unique ID and during execution thread $t_i$ can
@@ -1009,7 +1009,7 @@ Observing such performance differences for R2F and F2R on automata with differen
 
 When the Hybrid algorithm is used, the speedups on the PMF generation phase are given in Figure~\ref{fig:hybrid-speedup}. As the figure shows, thanks to parallelism and good scaling of Hybrid~(for large $p$ values), the speedups increase when the number of threads increases. With the CUDA implementation, the PMF generation process becomes even much faster: the memory optimized version obtains $25$, $51$, $143$, and $494$ speedup for $2$, $8$, $32$, and $128$ letter automata, respectively, with $n = 8000$ states. 
 
-Since we generate the PMF to find a synchronizing sequence, a more realistic evaluation metric would be the performance improvement over the whole sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \greedyAlgo\ heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for all parallel implementations of Hybrid executions. As the results show, when we compared sequential F2R implementation and hybrid implementation with single thread, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.\kkcomm{bunu anlamadim, aciklayabilir miyiz? bu 2 ve 14 nereden geldi?} \comment{sertac}{sequential olan yerine tek thread hybrid kullanilinca aldigimiz speeduplar}
+Since we generate the PMF to find a synchronizing sequence, a more realistic evaluation metric would be the performance improvement over the whole sequential reset sequence construction process. As Table~\ref{table:phase-comparison} shows, for Eppstein's \greedyAlgo\ heuristic~(also for some other heuristics such as \textsc{Cycle}~\cite{Trahtman04}), the PMF generation phase dominates the overall runtime. For this reason, we simply conducted an experiment where the Hybrid approach is used to construct the PMF and no further parallelization is applied during the synchronizing sequence construction phase. Table~\ref{table:phase-comparison-after} shows the speedups for this experiment for all parallel implementations of Hybrid executions. As the results show, when we compared sequential F2R implementation and hybrid implementation with single thread, more than $2$x and more than $14$x improvement is possible for $p = 32$ and $p = 128$, respectively.%\kkcomm{bunu anlamadim, aciklayabilir miyiz? bu 2 ve 14 nereden geldi?} \comment{sertac}{sequential olan yerine tek thread hybrid kullanilinca aldigimiz speeduplar}
 
 \begin{table}[ht]
 	\center
@@ -1024,7 +1024,7 @@ Since we generate the PMF to find a synchronizing sequence, a more realistic eva
 	\label{table:phase-comparison-after}
 \end{table}
 
-As noted before, F2R-based PMF construction has $O(pn^2)$ time complexity. the R2F-based variant, on the other hand, has $O(dpn^2)$ time complexity (where $d$ is the diameter of the pair automaton ${\cal A}$) since the states of ${\cal A}$ in the remaining set $R$ will be processed at most $d$ times. In practice, however, R2F-based construction (and Hybrid computation which also has $O(dpn^2)$ time complexity since it performs R2F steps) can beat F2R based construction.
+As noted before, F2R-based PMF construction has $O(pn^2)$ time complexity. The R2F-based variant, on the other hand, has $O(dpn^2)$ time complexity (where $d$ is the diameter of the pair automaton ${\cal A}$) since the states of ${\cal A}$ in the remaining set $R$ will be processed at most $d$ times. In practice, however, R2F-based construction (and Hybrid computation which also has $O(dpn^2)$ time complexity since it performs R2F steps) can beat F2R based construction.
 
 We did not perform an extensive study on larger automata since it takes too long with the sequential baseline implementation. For example, sequential PMF generation takes around 2 hours and 30 minutes for an automaton with 40,000 states and 128 letters, whereas our Hybrid implementation generates a sequence in 2 minutes and 30 seconds.
 
