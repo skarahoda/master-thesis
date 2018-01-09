@@ -88,48 +88,35 @@ of Eppstein's Synchronizing Heuristic}
 \section{Preliminaries}
 
 \begin{frame}{What is an Automaton?}
-
+\begin{center}
+	\scalebox{0.9}{
+		\begin{tikzpicture}[->,>=stealth',auto,node distance=15mm, thick,main node/.style={circle,fill=blue!20,draw}]
+		
+		\node[main node] (1) {$s_1$};
+		\node[main node] (2) [below left of=1] {$s_2$};
+		\node[main node] (3) [below right of=2] {$s_3$};
+		\node[main node] (4) [below right of=1] {$s_4$};
+		
+		\path[every node/.style={font=\sffamily\small}]
+		(1) edge node [left] {$a$} (4)
+		edge node [above] {$b$} (2)
+		(2) edge node {$a$} (4)
+		edge [loop left] node {$b$} (2)
+		(3) edge node [right] {$a$} (2)
+		edge [out=0,in=-90] node[right] {$b$} (4)
+		(4) edge node [left] {$a$} (3)
+		edge [out=90,in=0] node[right] {$b$} (1);
+		\end{tikzpicture}}
+	\end{center}
+	\vspace*{-2mm}
 	\begin{block}{Definition}
-		A \alert{deterministic and complete finite automaton $A$} is defined by a triple ${\cal A}=(S,\Sigma,\delta)$
+		A \alert{deterministic and complete finite automaton $A$} is defined by a triple ${\cal A}=(S,\Sigma,\delta)$.
 		\begin{itemize}
 			\item $S = \{ s_1, s_2, \ldots, s_n \}$: a finite set of states 
 			\item $\Sigma = \{ x_1, x_2, \ldots, x_k \}$: A finite set of input symbols 
 			\item $\delta : S \times \Sigma \rightarrow S$: A transition function which is \alert{total}
 		\end{itemize}
 	\end{block}
-\end{frame}
-
-\begin{frame}{Example Automaton}
-	\begin{columns}[T] % align columns
-		\begin{column}{.48\textwidth}
-		
-			${\cal A}=(S,\Sigma,\delta)$
-			
-			$S = \{ s_1, s_2, s_3, s_4 \}$
-			
-			$\Sigma = \{ a, b \}$
-		\end{column}%
-		\hfill%
-		\begin{column}{.48\textwidth}
-			\begin{tikzpicture}[->,>=stealth',auto,node distance=15mm, thick,main node/.style={circle,fill=blue!20,draw}]
-		
-				\node[main node] (1) {$s_1$};
-				\node[main node] (2) [below left of=1] {$s_2$};
-				\node[main node] (3) [below right of=2] {$s_3$};
-				\node[main node] (4) [below right of=1] {$s_4$};
-		
-				\path[every node/.style={font=\sffamily\small}]
-					(1) edge node [left] {$a$} (4)
-					edge node [above] {$b$} (2)
-					(2) edge node {$a$} (4)
-					edge [loop left] node {$b$} (2)
-					(3) edge node [right] {$a$} (2)
-					edge [out=0,in=-90] node[right] {$b$} (4)
-					(4) edge node [left] {$a$} (3)
-					edge [out=90,in=0] node[right] {$b$} (1);
-			\end{tikzpicture}
-		\end{column}%
-	\end{columns}
 \end{frame}
 
 \begin{frame}{Applying a Word to a State}
@@ -241,8 +228,7 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 	\begin{block}{Definition}
 	An automaton which is produced from the set of pairs $S^{\langle 2 \rangle}$; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called a \textit{pair automaton}.
 		\begin{itemize}
-			\item $S^{\langle 2 \rangle} = \{ \{s_1, s_1 \}, \{s_1, s_2 \},  \ldots, \{s_n, s_n \} \}$: a union of set of pairs and set of singletons. 
-			Or: $S^{\langle 2 \rangle} = \{ \{s_1, s_2 \}, \{s_1, s_3 \},  \ldots, \{s_{n-1}, s_n \}, s^* \}$: a union of set of pairs and a merging state $s^*$.
+			\item $S^{\langle 2 \rangle} = \{ \{s_1, s_1 \}, \{s_1, s_2 \},  \ldots, \{s_n, s_n \} \}$: a union of set of pairs and set of singletons
 			\item $\delta^{\langle 2 \rangle} : S^{\langle 2 \rangle} \times \Sigma^{\langle 2 \rangle} \rightarrow S$: the transition function for the generated pair automaton.
 		\end{itemize}
 	\end{block}
@@ -251,54 +237,43 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 \begin{frame}{Checking Synchronizablity}
 
 	\begin{block}{Proposition}
-		An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizing iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$ i.e., An automaton A is synchronizable iff $s^*$ is reachable from every
-state in ${\cal A}^{\langle 2 \rangle}$. 
+		An automaton ${\cal A}=(S,\Sigma,\delta)$ is synchronizing iff $\forall s_i,s_j \in S$, there exists a merging sequence for $\{ s_i, s_j \}$ i.e., An automaton $\cal A$ is synchronizable iff singletons are reachable from every pairs in ${\cal A}^{\langle 2 \rangle}$. 
 	\end{block}
-	\begin{columns}[T]
-		\begin{column}{.36\textwidth}
-			\begin{tikzpicture}[->,>=stealth',auto,node distance=15mm, thick,main node/.style={circle,fill=blue!20,draw}]
+	
+	\begin{tikzpicture}[->,>=stealth',auto,node distance=15mm, thick,main node/.style={circle,fill=blue!20,draw},pair node/.style={rectangle,fill=blue!20,draw}]
+		\node[main node] (2) {$s_2$};
+		\node[main node] (3) [below left of=2] {$s_3$};
+		\node[main node] (4) [below right of=3] {$s_4$};
+		\node[main node] (1) [below right of=2] {$s_1$};
+		\node[pair node] (1_2) [right of=1] {$\{ s_1, s_2 \}$};
+		\node[pair node] (2_4) [right of=1_2, xshift=10mm] {$\{ s_2, s_4 \}$};
+		\node[pair node] (1_4) [below of=2_4] {$\{ s_1, s_4 \}$};
+		\node[pair node] (2_3) [right of=2_4, xshift=10mm] {$\{ s_2, s_3 \}$};
+		\node[pair node] (1_3) [above of=2_3] {$\{ s_1, s_3 \}$};
+		\node[pair node] (3_4) [below of=2_3] {$\{ s_3, s_4 \}$};
+				
 		
-				\node[main node] (1) {$s_1$};
-				\node[main node] (2) [below left of=1] {$s_2$};
-				\node[main node] (3) [below right of=2] {$s_3$};
-				\node[main node] (4) [below right of=1] {$s_4$};
-		
-				\path[every node/.style={font=\sffamily\small}]
-					(1) edge node [left] {$a$} (4)
-					edge node [above] {$b$} (2)
-					(2) edge node {$a$} (4)
-					edge [loop left] node {$b$} (2)
-					(3) edge node [right] {$a$} (2)
-					edge [out=0,in=-90] node[right] {$b$} (4)
-					(4) edge node [left] {$a$} (3)
-					edge [out=90,in=0] node[right] {$b$} (1);
-			\end{tikzpicture}
-		\end{column}
-		\hfill
-		\begin{column}{.62\textwidth}
-			\begin{tikzpicture}[->,>=stealth',auto,node distance=22mm, thick,main node/.style={rectangle,fill=blue!20,draw}]
-		
-				\node[main node] (1) {$s^*$};
-				\node[main node] (2) [left of=1] {$\{ s_1, s_2 \}$};
-				\node[main node] (3) [below of=2, yshift=10mm] {$\{ s_2, s_4 \}$};
-				\node[main node] (4) [right of=3] {$\{ s_1, s_3 \}$};
-				\node[main node] (5) [below of=4, yshift=10mm] {$\{ s_2, s_3 \}$};
-				\node[main node] (6) [left of=3] {$\{ s_1, s_4 \}$};
-				\node[main node] (7) [below of=6, yshift=10mm] {$\{ s_3, s_4 \}$};
-		
-				\path[every node/.style={font=\sffamily\small}]
-					(2) edge node [above] {$a, b$} (1)
-					(3) edge node [above] {$a$} (7)
-						edge node [right] {$b$} (2)
-					(4) edge node [above] {$a, b$} (3)
-					(5) edge node [above] {$a, b$} (3)
-					(6) edge [out=180,in=180] node [right] {$a$} (7)
-						edge node [above] {$b$} (2)
-					(7) edge node [above] {$a$} (5)
-						edge node [right] {$b$} (6);
-			\end{tikzpicture}
-		\end{column}
-	\end{columns}
+		\path[every node/.style={font=\sffamily\small}]
+			(1) edge node [above] {$a$} (4)
+				edge node [above] {$b$} (2)
+			(2) edge node {$a$} (4)
+				edge [loop above] node {$b$} (2)
+			(3) edge node [below] {$a$} (2)
+				edge [out=-90,in=180] node[below] {$b$} (4)
+			(4) edge node [above] {$a$} (3)
+				edge [out=0,in=-90] node[above] {$b$} (1)
+			(1_2) edge [in=0, out=-135] node [below] {$a$} (4)
+			 	  edge [in=0, out=135] node [above] {$b$} (2)
+			(2_4) edge node [above] {$a$} (3_4)
+				edge node [above] {$b$} (1_2)
+			(1_3) edge node [left] {$a,b$} (2_4)
+			(1_4) edge node [above] {$a$} (3_4)
+				edge node [above] {$b$} (1_2)
+			(2_3) edge node [above] {$a,b$} (2_4)
+			(3_4) edge node [right] {$a$} (2_3)
+				edge [in=-45, out=-135] node [above] {$b$} (1_4);
+			 
+	\end{tikzpicture}
 \end{frame}
 
 
@@ -314,42 +289,42 @@ state in ${\cal A}^{\langle 2 \rangle}$.
 \begin{frame}{\textsc{Greedy} Algorithm}
 	\begin{itemize}
 		\item One of the fastest synchronizing heuristics
-		\item The cost of a pair is the length of the merging sequence
+		\item The cost of a pair: the length of the merging sequence
 	\end{itemize}
 \end{frame}
-
-\begin{frame}{\textsc{Greedy} Algorithm}
-	\small
-	\begin{algorithm}[H]
-	\caption{Eppstein's \textsc{Greedy} Algorithm}
-	\label{algo:greedy}
-	
-	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
-	\Output{A reset word $\Gamma$ for ${\cal A}$ (or fail if ${\cal A}$ is not synchronizable)}
-	
-	%{--- Phase 1 ---}
-	compute a pairwise merging function (PMF) $\tau$\;
-	\If{there exists a pair $\{ s_i,s_j \}$ such that  $\tau(\{ s_i,s_j \})$ is undefined}
-	{
-		report that ${\cal A}$ is not synchronizable and exit;	
-	}
-
-	
-	%{--- Phase 2 ---}
-	$C = S$; \tcp{$C$ will keep track of the current set of states}
-	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
-	
-	\While(\tcp*[h]{we have two or more states yet to be merged}){$|C| > 1$}
-	{
-		$\{ s_i,s_j \} = Find\_Min(C, \tau)$\;
-		
-		
-		$\Gamma = \Gamma \; \tau(\{ s_i,s_j \})$\;
-		$C = \delta(C,\tau(\{ s_i,s_j \}))$;
-	}
-	\end{algorithm}
-\end{frame}
+%
+%\begin{frame}{\textsc{Greedy} Algorithm}
+%	\small
+%	\begin{algorithm}[H]
+%	\caption{Eppstein's \textsc{Greedy} Algorithm}
+%	\label{algo:greedy}
+%	
+%	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
+%	\Output{A reset word $\Gamma$ for ${\cal A}$ (or fail if ${\cal A}$ is not synchronizable)}
+%	
+%	%{--- Phase 1 ---}
+%	compute a pairwise merging function (PMF) $\tau$\;
+%	\If{there exists a pair $\{ s_i,s_j \}$ such that  $\tau(\{ s_i,s_j \})$ is undefined}
+%	{
+%		report that ${\cal A}$ is not synchronizable and exit;	
+%	}
+%
+%	
+%	%{--- Phase 2 ---}
+%	$C = S$; \tcp{$C$ will keep track of the current set of states}
+%	$\Gamma = \varepsilon$; \tcp{$\Gamma$ is the synchronizing sequence to be constructed}
+%	
+%	\While(\tcp*[h]{two or more states yet to be merged}){$|C| > 1$}
+%	{
+%		$\{ s_i,s_j \} = Find\_Min(C, \tau)$\;
+%		
+%		
+%		$\Gamma = \Gamma \; \tau(\{ s_i,s_j \})$\;
+%		$C = \delta(C,\tau(\{ s_i,s_j \}))$;
+%	}
+%	\end{algorithm}
+%\end{frame}
 
 \begin{frame}{Analysis on \textsc{Greedy}}
 	\begin{table}[ht]
@@ -364,7 +339,7 @@ state in ${\cal A}^{\langle 2 \rangle}$.
 				\v{C}ern\'y	& 0.096	& 4.836	& 0.020	& 1.026		& 42.771	& 0.024	& 5.584		& 797.692	& 0.007
 			\end{tabular}
 		}
-		\caption{Sequential PMF construction time ($t_{PMF}$), and overall time ($t_{ALL}$) in seconds}
+		\caption{Sequential PMF construction time ($t_{PMF}$), i.e., the first phase, and overall time ($t_{ALL}$) in seconds}
 		\label{table:phase-comparison}
 	\end{table}
 \end{frame}
@@ -390,8 +365,8 @@ state in ${\cal A}^{\langle 2 \rangle}$.
 \begin{frame}{How can we make \textsc{Greedy} faster?}
 	\textbf{Problem:}	
 	\begin{itemize}
-		\item  The execution time of the first phase dominates the overall execution time yet there is an exception (\v{C}ern\'y automata)
-		\item The second phase does not need fully constructed PMF
+		\item  The execution time of the first phase dominates the overall execution time yet there is an exception (\v{C}ern\'y automata).
+		\item The second phase does not need fully constructed PMF.
 	\end{itemize}
 	\textbf{Solution:}
 	\begin{itemize}
@@ -405,172 +380,175 @@ state in ${\cal A}^{\langle 2 \rangle}$.
 \begin{frame}{The First Phase}
 
 	\begin{figure}
-		\includegraphics[height=\textheight]{figs/f2r.pdf}
+		\includegraphics[height=0.8\textheight]{figs/f2r.pdf}
+		\caption{The figure summarizes the PMF construction phase.}
 	\end{figure}
 \end{frame}
-
-\begin{frame}{The First Phase}
-\begin{algorithm}[H]
-	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
-	\label{algo:BFS}
-	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
-	\Output{A PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
-	
-	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$\;
-	\lForEach{singleton $\{ s,s \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s,s \}) = \varepsilon$}
-	\lForEach{pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s_i,s_j \}) =$ {\em undefined}}
-	
-	$F \longleftarrow \{ \{ s,s \} | s \in S \}$; \tcp{all singletons of $S^{\langle 2 \rangle}$}
-    $R \longleftarrow \{ \{ s_i, s_j \} | s_i,s_j \in S \wedge s_i \neq s_j \}$; \tcp{all pairs of $S^{\langle 2 \rangle}$}
-	\While{$R$ is not empty and $F$ is not empty}
-	{
-		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$\;
-	}
-\end{algorithm}
-\end{frame}
-
-
-
-\begin{frame}{The First Phase}
-\footnotesize
-\begin{algorithm}[H]
-	\caption{{BFS\_step (F2R)}}
-	\label{algo:BFS-step-F2R}
-	
-	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
-	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
-	
-	$F' \longleftarrow \emptyset$\;
-	\ForEach{$ \{ s_i,s_j \} \in F$}
-	{
-		\ForEach{$x \in \Sigma$}
-		{
-			\ForEach{$\{ s'_i,s'_j\}$ such that $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
-			{
-				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau(\{ s'_i,s'_j\})$ is undefined}
-				{
-					$\tau(\{ s'_i,s'_j \}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
-					$F' = F' \cup \{ \{ s'_i,s'_j \}  \} $\;
-				}
-			}
-		}
-	}
-	let $R'$ be $R \setminus F'$;
-\end{algorithm}
-\end{frame}
+%
+%\begin{frame}{The First Phase}
+%\begin{algorithm}[H]
+%	\caption{Computing a PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+%	\label{algo:BFS}
+%	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$}
+%	\Output{A PMF $\tau : S^{\langle 2 \rangle} \rightarrow \Sigma^\star$}
+%	
+%	%compute the reverse automaton ${A}^{-1} = (S,\Sigma,\delta^{-1})$ of $A$\;
+%	\lForEach{singleton $\{ s,s \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s,s \}) = \varepsilon$}
+%	\lForEach{pair $\{ s_i,s_j \} \in S^{\langle 2 \rangle}$}{$\tau(\{ s_i,s_j \}) =$ {\em undefined}}
+%	
+%	$F \longleftarrow \{ \{ s,s \} | s \in S \}$; \tcp{all singletons of $S^{\langle 2 \rangle}$}
+%    $R \longleftarrow \{ \{ s_i, s_j \} | s_i,s_j \in S \wedge s_i \neq s_j \}$; \tcp{all pairs of $S^{\langle 2 \rangle}$}
+%	\While{$R$ is not empty and $F$ is not empty}
+%	{
+%		$F,R,\tau \longleftarrow \mbox{BFS\_step}(A,F,R,\tau)$\;
+%	}
+%\end{algorithm}
+%\end{frame}
+%
+%
+%
+%\begin{frame}{The First Phase}
+%\footnotesize
+%\begin{algorithm}[H]
+%	\caption{{BFS\_step (F2R)}}
+%	\label{algo:BFS-step-F2R}
+%	
+%	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+%	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
+%	
+%	$F' \longleftarrow \emptyset$\;
+%	\ForEach{$ \{ s_i,s_j \} \in F$}
+%	{
+%		\ForEach{$x \in \Sigma$}
+%		{
+%			\ForEach{$\{ s'_i,s'_j\}$ such that $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+%			{
+%				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau(\{ s'_i,s'_j\})$ is undefined}
+%				{
+%					$\tau(\{ s'_i,s'_j \}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
+%					$F' = F' \cup \{ \{ s'_i,s'_j \}  \} $\;
+%				}
+%			}
+%		}
+%	}
+%	let $R'$ be $R \setminus F'$;
+%\end{algorithm}
+%\end{frame}
 
 \section{Parallelization of \textsc{Greedy}}
 \subsection{Frontier to Remaining}
 
 \begin{frame}{Parallelization of the First Phase}
 	\begin{itemize}
-		\item Pairs from level i have to be computed after  level i-1: \emph{a barrier mechanism is needed}
-		\item Synchronization is needed via creating the frontier set of the next iteration: \emph{global synchronization}
+		\item Pairs from level i have to be computed after  level i-1: \emph{a barrier mechanism is needed}.
+		\item Synchronization is needed via creating the frontier set of the next iteration: \emph{global synchronization}.
 	\end{itemize}
 \end{frame}
 
 
 \begin{frame}{Parallelization of the First Phase}
 	\begin{figure}
-		\includegraphics[height=\textheight]{figs/f2r_parallel.pdf}
+		\includegraphics[height=0.8\textheight]{figs/f2r_parallel.pdf}
+		\caption{}
 	\end{figure}
 \end{frame}
-
-\begin{frame}{Parallelization of the First Phase}
-\small
-\begin{algorithm}[H]
-	\caption{BFS\_step\_F2R (in parallel)}
-	\label{algo:BFS-step-F2R-Parallel}
-	
-	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
-	\Output{The new frontier $F'$ and updated function $\tau$}
-	
-	\lForEach{thread $t$}{
-		$F'_t \longleftarrow \emptyset$
-	}
-	\ForEachP{$\{ s_i,s_j\} \in F$}
-	{
-		\ForEach{$x \in \Sigma$}
-		{
-			\ForEach{$\{ s'_i,s'_j\}$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
-			{
-				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau({\{ s'_i,s'_j \}})$ is undefined}
-				{
-					$\tau(\{ s'_i,s'_j\}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
-					$F'_t = F'_t \cup \{ \{ s'_i,s'_j \}  \} $\;
-				}
-			}
-		}
-	}
-	$F' \longleftarrow \emptyset$\;
-	\lForEach{thread t}{
-		$F' = F' \cup F'_t$
-	}
-	let $R'$ be $R \setminus F'$;
-\end{algorithm}
-\end{frame}
+%
+%\begin{frame}{Parallelization of the First Phase}
+%\small
+%\begin{algorithm}[H]
+%	\caption{BFS\_step\_F2R (in parallel)}
+%	\label{algo:BFS-step-F2R-Parallel}
+%	
+%	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+%	\Output{The new frontier $F'$ and updated function $\tau$}
+%	
+%	\lForEach{thread $t$}{
+%		$F'_t \longleftarrow \emptyset$
+%	}
+%	\ForEachP{$\{ s_i,s_j\} \in F$}
+%	{
+%		\ForEach{$x \in \Sigma$}
+%		{
+%			\ForEach{$\{ s'_i,s'_j\}$ where $s'_i \in \delta^{-1}(s_i,x)$ and $s'_j \in \delta^{-1}(s_j,x)$}
+%			{
+%				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in R$}){$\tau({\{ s'_i,s'_j \}})$ is undefined}
+%				{
+%					$\tau(\{ s'_i,s'_j\}) \longleftarrow x \tau(\{ s_i,s_j \})$\;
+%					$F'_t = F'_t \cup \{ \{ s'_i,s'_j \}  \} $\;
+%				}
+%			}
+%		}
+%	}
+%	$F' \longleftarrow \emptyset$\;
+%	\lForEach{thread t}{
+%		$F' = F' \cup F'_t$
+%	}
+%\end{algorithm}
+%\end{frame}
 
 \subsection{Remaining to Frontier}
 
 \begin{frame}{Another approach for PMF construction}
 Can we apply BFS algorithm in a different way?
 
-Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
+Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}.
 \end{frame}
 
 
 \begin{frame}{Remaining to Frontier}
 	\begin{figure}
-		\includegraphics[height=\textheight]{figs/r2f.pdf}
+		\includegraphics[height=0.8\textheight]{figs/r2f.pdf}
+		\caption{}
 	\end{figure}
 \end{frame}
 
 
 \begin{frame}{Remaining to Frontier (in Parallel)}
 	\begin{figure}
-		\includegraphics[height=\textheight]{figs/r2f_parallel.pdf}
+		\includegraphics[height=0.8\textheight]{figs/r2f_parallel.pdf}
+		\caption{}
 	\end{figure}
 \end{frame}
-
-\begin{frame}{Remaining to Frontier}
-\footnotesize
-\begin{algorithm}[H]
-	\caption{BFS\_step\_R2F (in parallel)}
-	\label{algo:BFS-step-R2F-Parallel}
-	
-	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
-	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
-	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
-	
-		\lForEach{thread t}{$R'_t \longleftarrow \emptyset$}
-		\ForEachP{$\{ s_i,s_j \} \in R$}
-		{
-			$connected  \longleftarrow $ {\bf false}\;
-			\ForEach{$x \in \Sigma$}
-			{
-				$\{ s'_i, s'_j \}\longleftarrow \{ \delta(s_i,x),\delta(s_j,x) \}$; \\ 
-
-				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in F$}){$\tau(\{ s'_i, s'_j \})$ is defined}
-				{
-					$\tau( \{ s_i, s_j\}) \longleftarrow x \tau(\{ s'_i, s'_j \})$\;
-					$connected  \longleftarrow $ {\bf true}\;
-					{\bf break}\;
-				}
-			}
-			\If{not $connected$}
-			{
-					$R'_t = R'_t \cup \{ \{ s_i, s_j \} \} $\;
-			}
-		}
-		$R' \longleftarrow \emptyset$\;
-		\lForEach{thread t}{
-			$R' = R' \cup R'_t$
-		}
-\end{algorithm}
-\end{frame}
+%
+%\begin{frame}{Remaining to Frontier}
+%\footnotesize
+%\begin{algorithm}[H]
+%	\caption{BFS\_step\_R2F (in parallel)}
+%	\label{algo:BFS-step-R2F-Parallel}
+%	
+%	\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%	\Input{An automaton ${\cal A}=(S,\Sigma,\delta)$, the frontier $F$, the remaining set $R$, $\tau$}
+%	\Output{The new frontier $F'$, the new remaining set $R'$, and updated function $\tau$}
+%	
+%		\lForEach{thread t}{$R'_t \longleftarrow \emptyset$}
+%		\ForEachP{$\{ s_i,s_j \} \in R$}
+%		{
+%			$connected  \longleftarrow $ {\bf false}\;
+%			\ForEach{$x \in \Sigma$}
+%			{
+%				$\{ s'_i, s'_j \}\longleftarrow \{ \delta(s_i,x),\delta(s_j,x) \}$; \\ 
+%
+%				\If(\tcp*[h]{$\{ s'_i,s'_j\} \in F$}){$\tau(\{ s'_i, s'_j \})$ is defined}
+%				{
+%					$\tau( \{ s_i, s_j\}) \longleftarrow x \tau(\{ s'_i, s'_j \})$\;
+%					$connected  \longleftarrow $ {\bf true}\;
+%					{\bf break}\;
+%				}
+%			}
+%			\If{not $connected$}
+%			{
+%					$R'_t = R'_t \cup \{ \{ s_i, s_j \} \} $\;
+%			}
+%		}
+%		$R' \longleftarrow \emptyset$\;
+%		\lForEach{thread t}{
+%			$R' = R' \cup R'_t$
+%		}
+%\end{algorithm}
+%\end{frame}
 
 \subsection{Hybrid Algorithm}
 \begin{frame}{Comparison of R2F and F2R}
@@ -619,15 +597,15 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
 
 \subsection{GPU Parallelization}
 \begin{frame}{GPU Parallelization}
-	Global synchronization is costly
+	Global synchronization is costly.
 	
 	\medskip
 	
-	Searching entire set of pair instead of $F$ and $R$
+	Searching entire set of pairs instead of $F$ and $R$.
 	
 	\medskip
 	
-	Each thread checks one pair in the set
+	Each thread checks one pair in the set.
 \end{frame}
 
 \begin{frame}{Indexing Mechanism}
@@ -647,7 +625,7 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
 		\item Applying the merging sequence and finding the new active set
 	\end{itemize}
 	
-	The execution time is negligible except for slowly synchronizing automata
+	The execution time is negligible except for slowly synchronizing automata.
 \end{frame}
 
 \begin{frame}{Analysis on the Second Phase}
@@ -665,21 +643,26 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
 \end{table}
 \end{frame}
 
-\begin{frame}{The First Sub-Phase}
-%	\begin{figure}
-%		\includegraphics[height=\textheight]{figs/r2f.pdf}
-%	\end{figure}
-\end{frame}
+\begin{frame}{The Second Phase Parallelization}
 
-
-\begin{frame}{The First Sub-Phase (in Parallel)}
-%	\begin{figure}
-%		\includegraphics[height=\textheight]{figs/r2f_parallel.pdf}
-%	\end{figure}
+	The first sub-phase is simply a finding minimum from an array
+	
+	\medskip
+	
+	Parallelization is also simple:
+	\begin{itemize}
+		\item Elements of the array split among threads
+		\item Each thread finds the minimum locally.
+		\item A thread finds the global minimum from local minimum values. 
+	\end{itemize}
+	
+	\medskip
+	
+	Sorting the set of current states by their state numbers gives better spatial locality. 
 \end{frame}
 
 \section{Speeding Up the Fastest}
-\begin{frame}{Can we speed up the fastest with single thread?}
+\begin{frame}{Can we speed up \textsc{Greedy} with single thread?}
 \begin{table}[ht]
 	\center
 	\scalebox{0.7}{
@@ -698,9 +681,9 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
 
 \subsection{Lazy Computation}
 \begin{frame}{Lazy Computation}
-%	\begin{figure}
-%		\includegraphics[height=\textheight]{figs/r2f_parallel.pdf}
-%	\end{figure}
+	\begin{figure}
+		\includegraphics[width=\textwidth]{figs/lazy_flow.pdf}
+	\end{figure}
 \end{frame}
 
 
@@ -726,7 +709,7 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}
 \begin{frame}{Looking Ahead from the Current Pair}
 \begin{figure}[ht]
 	\centering
-	\scalebox{0.8}{
+	\scalebox{0.75}{
 		\includegraphics{figs/la.pdf}
 	}
 	\caption{The figure summarizes the lookahead process: The BFS forest~(the top part of the figure) is being constructed via $\delta^{-1}$ in a lazy way. However, $P = \{ \{s_i, s_j \} | \tau(\{s_i, s_j \})~ \mbox{\em is defined} \}$ and $C^{\langle 2 \rangle}$ are disconnected. The process tries to find a shortest path from $C^{\langle 2 \rangle}$ to the queue $Q$~(the green colored BFS frontier).}
@@ -776,9 +759,9 @@ Applying lookahead process fully and every time is costly
 \begin{frame}{Results}
 \begin{figure}[ht]
 	\centering
-	\includegraphics[height=0.4\textheight]{figs/hybrid_speedup_p32.png}
+	\includegraphics[height=0.4\textheight]{figs/hybrid_speedup_p128.png}
 	
-	\caption{The speedups of the Hybrid PMF construction algorithms with $p = 32$ and $n \in \{2000, 4000, 8000\}$. The $x$-axis shows the number of threads used for the Hybrid execution.  The values are computed based on the average sequential PMF construction time over $100$ different automata for each $(n, p)$ pair.}
+	\caption{The speedups of the Hybrid PMF construction algorithms with $p = 128$ and $n \in \{2000, 4000, 8000\}$. The $x$-axis shows the number of threads used for the Hybrid execution.  The values are computed based on the average sequential PMF construction time over $100$ different automata for each $(n, p)$ pair.}
 	\label{fig:hybrid-speedup}
 \end{figure}
 \end{frame}
@@ -812,8 +795,9 @@ Applying lookahead process fully and every time is costly
 \begin{frame}{Results}
 \begin{table}[ht]
 	\center
+	\small
 	\begin{tabular}{rr||r||rrr}
-$n$		&	$p$	& Algorithm~\ref{algo:BFS} 	& Lazy		& Lookahaed & Smart \\\hline\hline
+$n$		&	$p$	& Naive 	& Lazy		& Lookahaed & Smart \\\hline\hline
 2000	& 2		& 99.99\%					& 40.31\%	& 1.71\%	& 1.71\%\\
 		& 8		& 84.83\%					& 12.18\%	& 0.56\%	& 0.57\%\\
 		& 32	& 37.41\%					& 3.64\%	& 0.25\%	& 0.25\%\\
@@ -836,15 +820,29 @@ $n$		&	$p$	& Algorithm~\ref{algo:BFS} 	& Lazy		& Lookahaed & Smart \\\hline\hlin
 
 \begin{figure}[ht]
 	\centering
-	\subfigure[$p = 8$]{
-		\includegraphics[width=0.47\textwidth]{figs/p8_greedy.png}
-	}
 	\subfigure[$p = 32$]{
-		\includegraphics[width=0.47\textwidth]{figs/p32_greedy.png}
+		\includegraphics[width=0.45\textwidth]{figs/p32_greedy.png}
+	}
+	\subfigure[$p = 128$]{
+		\includegraphics[width=0.45\textwidth]{figs/p128_greedy.png}
 	}
 	\caption{The speedup values normalized w.r.t. the naive baseline. For each additional improvement, the cumulative speedup is given with stacked columns.}
 	\label{fig:speedups}
 \end{figure}
+\end{frame}
+
+\begin{frame}{Conclusion}
+\textsc{Greedy} is one of the fastest heuristics in literature.
+
+\medskip
+
+We speed up \textsc{Greedy} to make it more competitive:
+
+\begin{itemize}
+	\item First phase parallelization: up to $\times 500$ speed up
+	\item Algorithmic optimization: up to $\times 100$ speed up
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}{Publications}
