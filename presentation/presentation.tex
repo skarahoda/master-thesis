@@ -110,7 +110,7 @@ of Eppstein's Synchronizing Heuristic}
 	\end{center}
 	\vspace*{-2mm}
 	\begin{block}{Definition}
-		A \alert{deterministic and complete finite automaton $A$} is defined by a triple ${\cal A}=(S,\Sigma,\delta)$.
+		A \alert{deterministic and complete finite automaton $\cal A$} is defined by a triple ${\cal A}=(S,\Sigma,\delta)$.
 		\begin{itemize}
 			\item $S = \{ s_1, s_2, \ldots, s_n \}$: a finite set of states 
 			\item $\Sigma = \{ x_1, x_2, \ldots, x_k \}$: A finite set of input symbols 
@@ -228,8 +228,8 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 	\begin{block}{Definition}
 	An automaton which is produced from the set of pairs $S^{\langle 2 \rangle}$; ${\cal A}^{\langle 2 \rangle}=(S^{\langle 2 \rangle},\Sigma,\delta^{\langle 2 \rangle})$ is called a \textit{pair automaton}.
 		\begin{itemize}
-			\item $S^{\langle 2 \rangle} = \{ \{s_1, s_1 \}, \{s_1, s_2 \},  \ldots, \{s_n, s_n \} \}$: a union of set of pairs and set of singletons
-			\item $\delta^{\langle 2 \rangle} : S^{\langle 2 \rangle} \times \Sigma^{\langle 2 \rangle} \rightarrow S$: the transition function for the generated pair automaton.
+			\item $S^{\langle 2 \rangle} = \{ \{s_1, s_1 \}, \{s_1, s_2 \},  \ldots, \{s_n, s_n \} \}$: a set of multisets with length $\leq 2$
+			\item $\delta^{\langle 2 \rangle} : S^{\langle 2 \rangle} \times \Sigma \rightarrow S^{\langle 2 \rangle}$: the transition function for the generated pair automaton.
 		\end{itemize}
 	\end{block}
 \end{frame}
@@ -344,7 +344,6 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 	\end{table}
 \end{frame}
 
-
 \begin{frame}{Analysis on \textsc{Greedy}}
 \begin{table}[ht]
 	\center
@@ -381,7 +380,7 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 
 	\begin{figure}
 		\includegraphics[height=0.8\textheight]{figs/f2r.pdf}
-		\caption{The figure summarizes the PMF construction phase.}
+		%\caption{The figure summarizes the PMF construction phase.}
 	\end{figure}
 \end{frame}
 %
@@ -451,7 +450,7 @@ Luckily, it is quite easy to check whether an automaton is synchronizable or not
 \begin{frame}{Parallelization of the First Phase}
 	\begin{figure}
 		\includegraphics[height=0.8\textheight]{figs/f2r_parallel.pdf}
-		\caption{}
+		%\caption{}
 	\end{figure}
 \end{frame}
 %
@@ -501,7 +500,7 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}.
 \begin{frame}{Remaining to Frontier}
 	\begin{figure}
 		\includegraphics[height=0.8\textheight]{figs/r2f.pdf}
-		\caption{}
+		%\caption{}
 	\end{figure}
 \end{frame}
 
@@ -509,7 +508,7 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}.
 \begin{frame}{Remaining to Frontier (in Parallel)}
 	\begin{figure}
 		\includegraphics[height=0.8\textheight]{figs/r2f_parallel.pdf}
-		\caption{}
+		%\caption{}
 	\end{figure}
 \end{frame}
 %
@@ -645,13 +644,13 @@ Use $\delta$ instead of $\delta^{-1}$: \alert{Remaining to Frontier}.
 
 \begin{frame}{The Second Phase Parallelization}
 
-	The first sub-phase is simply a finding minimum from an array
+	The first sub-phase is simply a finding minimum value from an array
 	
 	\medskip
 	
 	Parallelization is also simple:
 	\begin{itemize}
-		\item Elements of the array split among threads
+		\item Elements of the array are  split among threads.
 		\item Each thread finds the minimum locally.
 		\item A thread finds the global minimum from local minimum values. 
 	\end{itemize}
@@ -831,6 +830,8 @@ $n$		&	$p$	& Naive 	& Lazy		& Lookahaed & Smart \\\hline\hline
 \end{figure}
 \end{frame}
 
+\section{Conclusion}
+
 \begin{frame}{Conclusion}
 \textsc{Greedy} is one of the fastest heuristics in literature.
 
@@ -862,5 +863,11 @@ Chicago
 
 \begin{frame}{Acknowledgment}
 This thesis was supported by The Scientific and Technological Research Council of Turkey (T\"{U}B\.{I}TAK) [grant number 114E569]. 
+\end{frame}
+
+\begin{frame}{}
+\Huge
+\center
+Thank you for listening
 \end{frame}
 \end{document}

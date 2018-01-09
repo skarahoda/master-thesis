@@ -100,7 +100,7 @@ active states<y:LabelModel>
               <y:Geometry height="50.0" width="180.0" x="318.4567796875014" y="308.5247999999999"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="43.203125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="171.1796875" x="4.41015625" y="3.3984375000000284">Check if there are more
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="43.203125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="171.1796875" x="4.41015625" y="3.3984375">Check if there are more
 than one active states<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
@@ -143,7 +143,7 @@ than one active states<y:LabelModel>
               <y:Geometry height="30.0" width="207.66399999999993" x="627.0695796875013" y="298.2700199762187"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="23.6015625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="167.6484375" x="20.007781249999994" y="3.19921875">Check the pair is found<y:LabelModel>
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="23.6015625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="180.09375" x="13.785124999999994" y="3.19921875">Check if the pair is found<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
                 </y:LabelModel>
                 <y:ModelParameter>
@@ -213,7 +213,7 @@ sequence is minimum<y:LabelModel>
               <y:Geometry height="60.0" width="170.0" x="711.3159446875012" y="367.19359999999995"/>
               <y:Fill color="#FFCC00" transparent="false"/>
               <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="162.296875" x="3.8515625" y="-1.4023437499999716">Apply the shortest 
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="16" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="162.296875" x="3.8515625" y="-1.40234375">Apply the shortest 
 merging word of the 
 pair to all active states<y:LabelModel>
                   <y:SmartNodeLabelModel distance="4.0"/>
@@ -311,7 +311,6 @@ pair to all active states<y:LabelModel>
       </data>
     </edge>
     <edge id="n0::e5" source="n0::n5" target="n0::n3">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -322,7 +321,6 @@ pair to all active states<y:LabelModel>
       </data>
     </edge>
     <edge id="n0::e6" source="n0::n4" target="n0::n6">
-      <data key="d9"/>
       <data key="d10">
         <y:ArcEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -335,7 +333,6 @@ pair to all active states<y:LabelModel>
       </data>
     </edge>
     <edge id="n0::e7" source="n0::n6" target="n0::n1">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
